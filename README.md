@@ -57,3 +57,23 @@ npm run db:migrate
 ```
 
 The site still runs on seed data plus `data/runtime.json` when `DATABASE_URL` is empty.
+
+## Deploy (Vercel)
+
+Import [Will-Thain/Tigz_Site](https://github.com/Will-Thain/Tigz_Site). Framework is Next.js (`vercel.json`).
+
+Set at least:
+
+- `NEXT_PUBLIC_SITE_HOST` — production hostname, no `https://` (Twitch embed `parent`)
+- `NEXT_PUBLIC_SITE_URL` — `https://<that-host>`
+- `TWITCH_CLIENT_ID` / `TWITCH_CLIENT_SECRET`
+- `TWITCH_EVENTSUB_SECRET`
+- `AUTH_SECRET`
+- `ADMIN_PASSWORD` and/or `ADMIN_TWITCH_IDS`
+
+In the Twitch developer console, add OAuth redirect `https://<host>/api/auth/callback/twitch`. After the first deploy, open `/admin` and subscribe EventSub.
+
+Optional: `DATABASE_URL` then `npm run db:migrate`, Turnstile pair, `TARKOVTRACKER_TOKEN`, `RESEND_API_KEY`.
+
+Kit stays unpublished until someone publishes at `/admin/kit`. Do not invent a loadout to look live.
+

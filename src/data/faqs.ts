@@ -45,6 +45,20 @@ export const faqs: Faq[] = [
       "Ammo is listed on the current kit card when it has been published. Do not trust random chat copy-paste over that card.",
   },
   {
+    id: "headset",
+    category: "Tarkov",
+    question: "Why that headset?",
+    answer:
+      "Headset, armor class, and ammo sit on /kit when a mod publishes them. Until then the slots say unpublished. We do not scrape the raid.",
+  },
+  {
+    id: "wipe",
+    category: "Tarkov",
+    question: "What wipe is this?",
+    answer:
+      "The wipe label is on the current kit card. If it looks wrong, the last publish is stale — Discord is faster than waiting for a scrape that will never exist.",
+  },
+  {
     id: "pve",
     category: "Tarkov",
     question: "Is this PvP or PvE?",
@@ -62,6 +76,13 @@ export const faqs: Faq[] = [
     category: "Community",
     question: "What settings / sensitivity does he use?",
     answer: "Ask in Discord or wait for a settings FAQ update from a mod. We will not invent numbers.",
+  },
+  {
+    id: "editor",
+    category: "Community",
+    question: "Who edits the YouTube videos?",
+    answer:
+      "Edited raids go to youtube.com/@tigztwitch. Credit for editors belongs in Discord or a future FAQ row, not in invented names here.",
   },
   {
     id: "sub-tip",

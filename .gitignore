@@ -7,3 +7,4 @@ data/runtime.json
 *.db
 .DS_Store
 tsconfig.tsbuildinfo
+.vercel
