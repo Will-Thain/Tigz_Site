@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { EventSubSetup } from "@/app/admin/EventSubSetup";
 import { isAdmin } from "@/lib/admin";
 
 export const dynamic = "force-dynamic";
@@ -35,6 +36,13 @@ export default async function AdminPage() {
           </li>
         ))}
       </ul>
+      <EventSubSetup
+        callback={
+          process.env.NEXT_PUBLIC_SITE_URL
+            ? `${process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "")}/api/twitch/eventsub`
+            : null
+        }
+      />
     </div>
   );
 }

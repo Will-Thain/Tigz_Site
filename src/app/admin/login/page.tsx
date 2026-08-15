@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { isAdmin } from "@/lib/admin";
+import { isTwitchAuthEnabled, twitchSignInHref } from "@/lib/auth";
 import { tryAdminLogin } from "./session";
 
 export const dynamic = "force-dynamic";
@@ -44,6 +45,11 @@ export default async function AdminLoginPage({
         <button type="submit" className="bg-sand-100 px-4 py-2 font-mono text-[11px] stencil text-ink-950">
           Sign in
         </button>
+        {isTwitchAuthEnabled() ? (
+          <a href={twitchSignInHref("/admin")} className="font-mono text-[11px] stencil text-olive-400">
+            Sign in with Twitch
+          </a>
+        ) : null}
         {error ? <p className="text-sm text-sand-300">Wrong password.</p> : null}
       </form>
     </div>

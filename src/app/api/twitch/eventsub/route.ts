@@ -3,9 +3,9 @@ import { writeStore } from "@/lib/store";
 import {
   eventSubTimestampIsFresh,
   subscribeToStreamEvents,
-  timingSafeEqual,
   verifyEventSubHmac,
 } from "@/lib/twitch-eventsub";
+import { eventSubSetupTokenMatches } from "@/lib/eventsub-admin";
 import type { LiveFlag } from "@/lib/twitch";
 
 export const runtime = "nodejs";
@@ -90,7 +90,7 @@ export async function GET(req: Request) {
     if (url.searchParams.get("setup") !== "1") {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
-    if (!adminTokenMatches(req, url)) {
+    if (!eventSubSetupTokenMatches(req, url)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -111,13 +111,4 @@ function parseBody(raw: string): EventSubBody | null {
   } catch {
     return null;
   }
-}
-
-function adminTokenMatches(req: Request, url: URL) {
-  const expected = process.env.ADMIN_PASSWORD;
-  if (!expected) return false;
-  const header = req.headers.get("authorization");
-  const bearer = header?.toLowerCase().startsWith("bearer ") ? header.slice(7) : "";
-  const token = bearer || url.searchParams.get("token") || "";
-  return timingSafeEqual(expected, token);
 }
