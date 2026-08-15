@@ -22,14 +22,32 @@ const mono = IBM_Plex_Mono({
   variable: "--font-mono",
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const description =
+  "Watch Tigz live on Twitch. Tarkov kit, quest board, schedule, FAQs, polls, and brand partnerships — then go to twitch.tv/tigz.";
+
 export const metadata: Metadata = {
   title: {
     default: "Tigz — Tarkov hub",
     template: "%s · Tigz",
   },
-  description:
-    "Watch Tigz live on Twitch. Tarkov kit, quest board, schedule, FAQs, polls, and brand partnerships.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  description,
+  metadataBase: new URL(siteUrl),
+  alternates: { canonical: "/" },
+  keywords: ["Tigz", "Twitch", "Escape from Tarkov", "kit", "schedule", "polls"],
+  openGraph: {
+    title: "Tigz — Tarkov hub",
+    description,
+    url: siteUrl,
+    siteName: "Tigz",
+    type: "website",
+    locale: "en_GB",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Tigz — Tarkov hub",
+    description,
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

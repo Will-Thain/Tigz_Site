@@ -1,15 +1,16 @@
 import Link from "next/link";
 import { mediaKit, loadSponsors } from "@/data/sponsors";
-import { getFollowerTotal } from "@/lib/twitch";
+import { getAverageCcv, getFollowerTotal } from "@/lib/twitch";
 import { getYoutubeSubscriberCount } from "@/lib/youtube";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Partners" };
 
 export default async function PartnersPage() {
-  const [followers, subs, sponsors] = await Promise.all([
+  const [followers, subs, avgCcv, sponsors] = await Promise.all([
     getFollowerTotal(),
     getYoutubeSubscriberCount(),
+    getAverageCcv(),
     loadSponsors(),
   ]);
   const current = sponsors.filter((s) => s.status === "current");
@@ -29,9 +30,10 @@ export default async function PartnersPage() {
         </p>
       </header>
 
-      <dl className="grid gap-3 sm:grid-cols-3">
+      <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Stat label="Twitch followers" value={followers ? followers.toLocaleString() : mediaKit.followersApprox} />
         <Stat label="YouTube subs" value={subs ? subs.toLocaleString() : "See channel"} />
+        <Stat label="Avg CCV (sampled)" value={avgCcv != null ? avgCcv.toLocaleString() : "—"} />
         <Stat label="Cadence" value={mediaKit.cadence} />
       </dl>
 

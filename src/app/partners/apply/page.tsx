@@ -13,7 +13,7 @@ export default function ApplyPage() {
           Routed to {LINKS.talentEmail}. Do not pitch in Twitch chat.
         </p>
       </header>
-      <ApplyForm />
+      <ApplyForm turnstileSiteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || null} />
     </div>
   );
 }

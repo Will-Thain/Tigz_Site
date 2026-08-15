@@ -8,6 +8,8 @@
  */
 
 import { characterProgress, type CharacterProgress } from "@/data/progress";
+import { getDb } from "@/db";
+import { questCache } from "@/db/schema";
 import { readStore, writeStore } from "@/lib/store";
 
 const CATALOG_BASE = "https://json.tarkov.dev";
@@ -39,6 +41,13 @@ export type TrackerTaskState = {
 export type TrackerSnapshot = {
   playerLevel?: number;
   tasks: TrackerTaskState[];
+  fetchedAt?: string;
+};
+
+export type PersistedQuestCache = {
+  etag: string;
+  body: unknown;
+  fetchedAt: string;
 };
 
 export type JoinedQuest = {
@@ -239,11 +248,52 @@ export function parseTrackerSnapshot(raw: unknown): TrackerSnapshot | null {
   return { tasks, playerLevel };
 }
 
+export function isTrackerReadToken(token: string) {
+  if (/write/i.test(token)) return false;
+  return /^(PVP_|PVE_|SZN_)/.test(token);
+}
+
+async function persistQuestCache(entry: PersistedQuestCache) {
+  trackerCache = { etag: entry.etag, body: entry.body };
+  await writeStore("questCache", entry);
+  const db = getDb();
+  if (!db) return;
+  try {
+    await db
+      .insert(questCache)
+      .values({
+        id: "tracker",
+        etag: entry.etag,
+        payload: entry.body,
+        fetchedAt: new Date(entry.fetchedAt),
+      })
+      .onConflictDoUpdate({
+        target: questCache.id,
+        set: {
+          etag: entry.etag,
+          payload: entry.body,
+          fetchedAt: new Date(entry.fetchedAt),
+        },
+      });
+  } catch {
+    // File store is enough without Postgres.
+  }
+}
+
+async function loadPersistedCache(): Promise<PersistedQuestCache | null> {
+  const stored = await readStore<PersistedQuestCache | null>("questCache", null);
+  if (stored?.body) {
+    trackerCache = { etag: stored.etag ?? "", body: stored.body };
+    return stored;
+  }
+  return null;
+}
+
 export async function fetchTrackerProgress(): Promise<TrackerSnapshot | null> {
   const token = process.env.TARKOVTRACKER_TOKEN;
-  if (!token) return null;
-  if (!/^(PVP_|PVE_|SZN_)/.test(token)) return null;
+  if (!token || !isTrackerReadToken(token)) return null;
 
+  const persisted = await loadPersistedCache();
   const headers: Record<string, string> = {
     Authorization: `Bearer ${token}`,
     "User-Agent": TRACKER_UA,
@@ -257,16 +307,24 @@ export async function fetchTrackerProgress(): Promise<TrackerSnapshot | null> {
       next: { revalidate: 300 },
     });
     if (res.status === 304 && trackerCache) {
-      return parseTrackerSnapshot(trackerCache.body);
+      const snapshot = parseTrackerSnapshot(trackerCache.body);
+      return snapshot
+        ? { ...snapshot, fetchedAt: persisted?.fetchedAt ?? new Date().toISOString() }
+        : null;
     }
-    if (!res.ok) return trackerCache ? parseTrackerSnapshot(trackerCache.body) : null;
+    if (!res.ok) {
+      const snapshot = trackerCache ? parseTrackerSnapshot(trackerCache.body) : null;
+      return snapshot ? { ...snapshot, fetchedAt: persisted?.fetchedAt } : null;
+    }
     const body: unknown = await res.json();
-    const etag = res.headers.get("etag");
-    if (etag) trackerCache = { etag, body };
-    else trackerCache = { etag: trackerCache?.etag ?? "", body };
-    return parseTrackerSnapshot(body);
+    const etag = res.headers.get("etag") ?? trackerCache?.etag ?? "";
+    const fetchedAt = new Date().toISOString();
+    await persistQuestCache({ etag, body, fetchedAt });
+    const snapshot = parseTrackerSnapshot(body);
+    return snapshot ? { ...snapshot, fetchedAt } : null;
   } catch {
-    return trackerCache ? parseTrackerSnapshot(trackerCache.body) : null;
+    const snapshot = trackerCache ? parseTrackerSnapshot(trackerCache.body) : null;
+    return snapshot ? { ...snapshot, fetchedAt: persisted?.fetchedAt } : null;
   }
 }
 

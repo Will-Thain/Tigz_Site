@@ -63,6 +63,16 @@ describe("poll vote uniqueness", () => {
     expect(poll?.options.find((opt) => opt.id === "mid")?.votes).toBe(1);
   });
 
+  it("records one vote per poll per twitch id", async () => {
+    const first = await votePoll("kit-meta", "budget", "twitch:4242");
+    expect(first.ok).toBe(true);
+    const replay = await votePoll("kit-meta", "mid", "twitch:4242");
+    expect(replay.ok).toBe(false);
+    expect(replay.error).toBe("Already voted.");
+    const other = await votePoll("kit-meta", "mid", "twitch:9999");
+    expect(other.ok).toBe(true);
+  });
+
   it("rejects votes after the poll is closed", async () => {
     memory.polls = [{ ...openPoll(), active: false }];
     const result = await votePoll("kit-meta", "budget", hashVoterKey("cookie-a"));

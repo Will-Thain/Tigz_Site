@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { joinQuestBoard, parseTrackerSnapshot } from "./tarkov";
+import { isTrackerReadToken, joinQuestBoard, parseTrackerSnapshot } from "./tarkov";
 
 describe("parseTrackerSnapshot", () => {
   it("reads tasksProgress arrays from a Tracker payload", () => {
@@ -47,5 +47,15 @@ describe("joinQuestBoard", () => {
       tasks: [{ id: "solo", complete: false }],
     });
     expect(board.inProgress[0]?.name).toBe("solo");
+  });
+});
+
+describe("Tracker read token", () => {
+  it("accepts GP prefixes and rejects write-looking tokens", () => {
+    expect(isTrackerReadToken("PVP_abc")).toBe(true);
+    expect(isTrackerReadToken("PVE_abc")).toBe(true);
+    expect(isTrackerReadToken("SZN_abc")).toBe(true);
+    expect(isTrackerReadToken("PVP_write_abc")).toBe(false);
+    expect(isTrackerReadToken("secret")).toBe(false);
   });
 });

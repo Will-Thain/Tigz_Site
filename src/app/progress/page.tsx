@@ -63,6 +63,7 @@ export default async function ProgressPage() {
             <p className="font-mono text-[11px] text-sand-500">
               Quest flags from a TarkovTracker.org read token, joined to the json.tarkov.dev catalog. Not live from the
               game.
+              {tracker?.fetchedAt ? ` Tracker cached ${new Date(tracker.fetchedAt).toUTCString()}.` : ""}
             </p>
           </div>
         ) : (

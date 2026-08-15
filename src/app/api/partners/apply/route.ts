@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { sendSponsorApplication } from "@/lib/mail";
 import { readStore, writeStore } from "@/lib/store";
+import { verifyTurnstileToken } from "@/lib/turnstile";
 
 type StoredApplication = {
   id: string;
@@ -22,6 +23,12 @@ export async function POST(req: Request) {
   const body = (await req.json()) as Record<string, unknown>;
   if (typeof body.website === "string" && body.website.trim()) {
     return NextResponse.json({ ok: true });
+  }
+
+  const forwarded = req.headers.get("x-forwarded-for");
+  const ip = forwarded?.split(",")[0]?.trim() || req.headers.get("x-real-ip")?.trim() || undefined;
+  if (!(await verifyTurnstileToken(body.turnstileToken, { ip }))) {
+    return NextResponse.json({ ok: false, error: "Verification failed." }, { status: 400 });
   }
 
   const company = String(body.company ?? "").trim();

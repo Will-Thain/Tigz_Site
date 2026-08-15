@@ -2,6 +2,8 @@ import { randomUUID } from "node:crypto";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { hashVoterKey, votePoll } from "@/app/api/polls/store";
+import { getAuthSession } from "@/lib/auth";
+import { verifyTurnstileToken } from "@/lib/turnstile";
 
 function requestIp(req: Request) {
   const forwarded = req.headers.get("x-forwarded-for");
@@ -20,12 +22,37 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "Missing poll or option." }, { status: 400 });
   }
 
+  const ip = requestIp(req);
+  if (!(await verifyTurnstileToken(body.turnstileToken, { ip }))) {
+    return NextResponse.json({ ok: false, error: "Verification failed." }, { status: 400 });
+  }
+
+  const session = await getAuthSession();
+  const twitchId = session?.twitchId;
   const jar = await cookies();
   let voter = jar.get("tigz_voter")?.value;
   const issued = !voter;
   if (!voter) voter = randomUUID();
+  const cookieKey = hashVoterKey(voter, ip);
 
-  const result = await votePoll(pollId, optionId, hashVoterKey(voter, requestIp(req)));
+  if (twitchId) {
+    const result = await votePoll(pollId, optionId, `twitch:${twitchId}`);
+    if (result.ok) await votePoll(pollId, optionId, cookieKey);
+    const status = result.ok ? 200 : result.error === "Already voted." ? 409 : 400;
+    const res = NextResponse.json(result, { status });
+    if (issued) {
+      res.cookies.set("tigz_voter", voter, {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 365,
+      });
+    }
+    return res;
+  }
+
+  const result = await votePoll(pollId, optionId, cookieKey);
   const status = result.ok ? 200 : result.error === "Already voted." ? 409 : 400;
   const res = NextResponse.json(result, { status });
   if (issued) {

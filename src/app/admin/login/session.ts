@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 
 export async function tryAdminLogin(password: string): Promise<boolean> {
   const expected = process.env.ADMIN_PASSWORD;
-  if (!expected) return true;
+  if (!expected) return process.env.NODE_ENV !== "production";
   if (password !== expected) return false;
   const jar = await cookies();
   jar.set("tigz_admin", expected, {

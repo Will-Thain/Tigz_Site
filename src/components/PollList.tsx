@@ -3,14 +3,44 @@
 import { useEffect, useState } from "react";
 import { pollIsOpen, type Poll } from "@/data/polls";
 
-export function PollList({ polls }: { polls: Poll[] }) {
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (el: HTMLElement, opts: { sitekey: string; callback: (token: string) => void }) => string;
+      reset: (id?: string) => void;
+    };
+  }
+}
+
+export function PollList({
+  polls,
+  twitchSignIn,
+  turnstileSiteKey,
+}: {
+  polls: Poll[];
+  twitchSignIn?: string | null;
+  turnstileSiteKey?: string | null;
+}) {
   const [local, setLocal] = useState<Poll[]>(polls);
   const [voted, setVoted] = useState<Record<string, boolean>>({});
   const [notice, setNotice] = useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState("");
 
   useEffect(() => {
     setLocal(polls);
   }, [polls]);
+
+  useEffect(() => {
+    if (!turnstileSiteKey) return;
+    const existing = document.querySelector("script[data-tigz-turnstile]");
+    if (!existing) {
+      const script = document.createElement("script");
+      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+      script.async = true;
+      script.dataset.tigzTurnstile = "1";
+      document.head.appendChild(script);
+    }
+  }, [turnstileSiteKey]);
 
   async function vote(pollId: string, optionId: string) {
     if (voted[pollId]) return;
@@ -18,7 +48,7 @@ export function PollList({ polls }: { polls: Poll[] }) {
     const res = await fetch("/api/polls/vote", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ pollId, optionId }),
+      body: JSON.stringify({ pollId, optionId, turnstileToken: turnstileToken || undefined }),
     });
     const json = (await res.json()) as { ok?: boolean; error?: string; polls?: Poll[] };
     if (json.polls) setLocal(json.polls);
@@ -26,6 +56,8 @@ export function PollList({ polls }: { polls: Poll[] }) {
       setVoted((prev) => ({ ...prev, [pollId]: true }));
     }
     if (!json.ok && json.error) setNotice(json.error);
+    if (window.turnstile) window.turnstile.reset();
+    setTurnstileToken("");
   }
 
   return (
@@ -65,9 +97,39 @@ export function PollList({ polls }: { polls: Poll[] }) {
       {local.length === 0 ? (
         <p className="text-sm text-sand-500">No polls yet. Check back after the next stream question.</p>
       ) : null}
+      {turnstileSiteKey ? (
+        <div
+          className="cf-turnstile"
+          ref={(node) => {
+            if (!node || !turnstileSiteKey || node.dataset.rendered) return;
+            const render = () => {
+              if (!window.turnstile || node.dataset.rendered) return;
+              window.turnstile.render(node, {
+                sitekey: turnstileSiteKey,
+                callback: (token) => setTurnstileToken(token),
+              });
+              node.dataset.rendered = "1";
+            };
+            render();
+            const id = window.setInterval(render, 400);
+            window.setTimeout(() => window.clearInterval(id), 8000);
+          }}
+        />
+      ) : null}
       {notice ? <p className="text-sm text-sand-300">{notice}</p> : null}
       <p className="text-sm text-sand-500">
-        One vote per poll in this browser. Twitch login for verified ballots comes later.
+        One vote per poll in this browser
+        {twitchSignIn ? (
+          <>
+            {". "}
+            <a href={twitchSignIn} className="text-olive-400">
+              Sign in with Twitch
+            </a>{" "}
+            for a verified ballot.
+          </>
+        ) : (
+          "."
+        )}
       </p>
     </div>
   );

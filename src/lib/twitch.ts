@@ -1,5 +1,5 @@
 import { TWITCH_LOGIN, TWITCH_USER_ID } from "./links";
-import { readStore } from "./store";
+import { readStore, writeStore } from "./store";
 
 export type TwitchStream = {
   live: boolean;
@@ -44,6 +44,11 @@ export type LiveFlag = {
 };
 
 const STORE_LIVE_MAX_MS = 2 * 60 * 1000;
+export const CCV_SAMPLE_KEY = "ccvSamples";
+export const CCV_MAX_SAMPLES = 48;
+export const CCV_DEDUPE_MS = 10 * 60 * 1000;
+
+export type CcvSample = { at: string; viewers: number };
 
 type TokenCache = { token: string; expiresAt: number };
 let tokenCache: TokenCache | null = null;
@@ -120,11 +125,13 @@ export async function getStreamStatus(): Promise<TwitchStream> {
     | null;
   const row = json?.data?.[0];
   if (row) {
+    const viewerCount = typeof row.viewer_count === "number" ? row.viewer_count : undefined;
+    if (typeof viewerCount === "number") await recordCcvSample(viewerCount);
     return {
       live: true,
       title: typeof row.title === "string" ? row.title : undefined,
       gameName: typeof row.game_name === "string" ? row.game_name : undefined,
-      viewerCount: typeof row.viewer_count === "number" ? row.viewer_count : undefined,
+      viewerCount,
       startedAt: typeof row.started_at === "string" ? row.started_at : undefined,
       thumbnailUrl: typeof row.thumbnail_url === "string" ? row.thumbnail_url : undefined,
     };
@@ -183,13 +190,16 @@ export async function getSchedule(): Promise<ScheduleSegment[]> {
     | { data?: { segments?: Array<Record<string, unknown>> } }
     | null;
   const segments = json?.data?.segments ?? [];
-  return segments.slice(0, 12).map((row) => ({
-    id: String(row.id ?? ""),
-    startTime: String(row.start_time ?? ""),
-    endTime: String(row.end_time ?? ""),
-    title: String(row.title ?? TWITCH_LOGIN),
-    canceled: Boolean(row.canceled_until),
-  }));
+  if (segments.length > 0) {
+    return segments.slice(0, 12).map((row) => ({
+      id: String(row.id ?? ""),
+      startTime: String(row.start_time ?? ""),
+      endTime: String(row.end_time ?? ""),
+      title: String(row.title ?? TWITCH_LOGIN),
+      canceled: Boolean(row.canceled_until),
+    }));
+  }
+  return fetchIcalSchedule(userId);
 }
 
 export async function getFollowerTotal(): Promise<number | null> {
@@ -198,4 +208,64 @@ export async function getFollowerTotal(): Promise<number | null> {
     | { total?: number }
     | null;
   return typeof json?.total === "number" ? json.total : null;
+}
+
+export async function recordCcvSample(viewers: number, now = Date.now()): Promise<CcvSample[]> {
+  const samples = await readStore<CcvSample[]>(CCV_SAMPLE_KEY, []);
+  const last = samples[samples.length - 1];
+  if (last) {
+    const lastAt = Date.parse(last.at);
+    if (Number.isFinite(lastAt) && now - lastAt < CCV_DEDUPE_MS) return samples;
+  }
+  const next = [...samples, { at: new Date(now).toISOString(), viewers }].slice(-CCV_MAX_SAMPLES);
+  await writeStore(CCV_SAMPLE_KEY, next);
+  return next;
+}
+
+export async function getAverageCcv(): Promise<number | null> {
+  const samples = await readStore<CcvSample[]>(CCV_SAMPLE_KEY, []);
+  if (samples.length === 0) return null;
+  const sum = samples.reduce((total, sample) => total + sample.viewers, 0);
+  return Math.round(sum / samples.length);
+}
+
+export function parseIcalDateTime(raw: string): string {
+  const compact = raw.replace(/[^0-9TZ]/g, "");
+  const match = compact.match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z?$/);
+  if (!match) return raw;
+  const [, y, mo, d, h, mi, s] = match;
+  return `${y}-${mo}-${d}T${h}:${mi}:${s}Z`;
+}
+
+export function parseIcalSchedule(ical: string): ScheduleSegment[] {
+  const events = ical.split("BEGIN:VEVENT").slice(1);
+  const segments: ScheduleSegment[] = [];
+  for (const chunk of events) {
+    const event = chunk.split("END:VEVENT")[0] ?? "";
+    const start = event.match(/DTSTART[^:]*:([^\r\n]+)/)?.[1]?.trim();
+    const end = event.match(/DTEND[^:]*:([^\r\n]+)/)?.[1]?.trim();
+    const summary = event.match(/SUMMARY[^:]*:([^\r\n]+)/)?.[1]?.trim() ?? TWITCH_LOGIN;
+    const status = event.match(/STATUS[^:]*:([^\r\n]+)/)?.[1]?.trim().toUpperCase();
+    if (!start) continue;
+    segments.push({
+      id: `ical-${start}`,
+      startTime: parseIcalDateTime(start),
+      endTime: end ? parseIcalDateTime(end) : parseIcalDateTime(start),
+      title: summary.replace(/\\,/g, ","),
+      canceled: status === "CANCELLED",
+    });
+  }
+  return segments.slice(0, 12);
+}
+
+async function fetchIcalSchedule(userId: string): Promise<ScheduleSegment[]> {
+  try {
+    const res = await fetch(`https://api.twitch.tv/helix/schedule/icalendar?broadcaster_id=${userId}`, {
+      next: { revalidate: 900 },
+    });
+    if (!res.ok) return [];
+    return parseIcalSchedule(await res.text());
+  } catch {
+    return [];
+  }
 }

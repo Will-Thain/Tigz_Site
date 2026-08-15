@@ -26,7 +26,9 @@ export default async function AdminLoginPage({
       <header className="max-w-xl">
         <p className="font-mono text-[11px] stencil text-olive-400">Mods</p>
         <h1 className="font-display text-4xl">Admin login</h1>
-        <p className="mt-2 text-sand-300">Password matches the ADMIN_PASSWORD env var.</p>
+        <p className="mt-2 text-sand-300">
+          Password matches ADMIN_PASSWORD, or a Twitch account in ADMIN_TWITCH_IDS. Production needs one of those.
+        </p>
       </header>
       <form action={login} method="post" className="grid max-w-xl gap-3">
         <label className="grid gap-1 text-sm">

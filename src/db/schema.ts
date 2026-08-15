@@ -76,3 +76,23 @@ export const applications = pgTable("applications", {
   emailedAt: timestamp("emailed_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
 });
+
+export const questCache = pgTable("quest_cache", {
+  id: text("id").primaryKey(),
+  etag: text("etag"),
+  payload: jsonb("payload").notNull(),
+  fetchedAt: timestamp("fetched_at", { withTimezone: true }).notNull(),
+});
+
+export const mediaKitSnapshots = pgTable("media_kit_snapshots", {
+  id: text("id").primaryKey(),
+  followers: integer("followers"),
+  ytSubs: integer("yt_subs"),
+  liveCcv: integer("live_ccv"),
+  avgCcv: integer("avg_ccv"),
+  capturedAt: timestamp("captured_at", { withTimezone: true }).notNull(),
+});
+
+export const admins = pgTable("admins", {
+  twitchUserId: text("twitch_user_id").primaryKey(),
+});

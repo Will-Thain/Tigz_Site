@@ -1,11 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const types = ["Game / key", "Hardware", "Apparel", "Energy", "Ambassador", "Other"];
 
-export function ApplyForm() {
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (el: HTMLElement, opts: { sitekey: string; callback: (token: string) => void }) => string;
+      reset: (id?: string) => void;
+    };
+  }
+}
+
+export function ApplyForm({ turnstileSiteKey }: { turnstileSiteKey?: string | null }) {
   const [status, setStatus] = useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState("");
+
+  useEffect(() => {
+    if (!turnstileSiteKey) return;
+    if (document.querySelector("script[data-tigz-turnstile]")) return;
+    const script = document.createElement("script");
+    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+    script.async = true;
+    script.dataset.tigzTurnstile = "1";
+    document.head.appendChild(script);
+  }, [turnstileSiteKey]);
 
   async function onSubmit(formData: FormData) {
     setStatus("Sending…");
@@ -20,6 +40,7 @@ export function ApplyForm() {
         dates: formData.get("dates"),
         message: formData.get("message"),
         website: formData.get("website"),
+        turnstileToken: turnstileToken || undefined,
       }),
     });
     const json = (await res.json()) as { ok?: boolean; mailto?: string; error?: string };
@@ -29,6 +50,8 @@ export function ApplyForm() {
       return;
     }
     setStatus(json.ok ? "Sent to Mythic Talent." : json.error ?? "Could not send.");
+    if (window.turnstile) window.turnstile.reset();
+    setTurnstileToken("");
   }
 
   return (
@@ -50,6 +73,25 @@ export function ApplyForm() {
         <span className="font-mono text-[10px] stencil text-sand-500">Brief</span>
         <textarea name="message" rows={6} required className="border border-sand-500/20 bg-ink-900 px-3 py-2" />
       </label>
+      {turnstileSiteKey ? (
+        <div
+          className="cf-turnstile"
+          ref={(node) => {
+            if (!node || !turnstileSiteKey || node.dataset.rendered) return;
+            const render = () => {
+              if (!window.turnstile || node.dataset.rendered) return;
+              window.turnstile.render(node, {
+                sitekey: turnstileSiteKey,
+                callback: (token) => setTurnstileToken(token),
+              });
+              node.dataset.rendered = "1";
+            };
+            render();
+            const id = window.setInterval(render, 400);
+            window.setTimeout(() => window.clearInterval(id), 8000);
+          }}
+        />
+      ) : null}
       <button type="submit" className="bg-sand-100 px-4 py-2 font-mono text-[11px] stencil text-ink-950">
         Submit
       </button>
