@@ -67,4 +67,14 @@ describe("EventSub webhook route", () => {
     expect(res.status).toBe(403);
     expect(writeStore).not.toHaveBeenCalled();
   });
+
+  it("rejects a stale timestamp even with a valid HMAC", async () => {
+    const { POST } = await import("./route");
+    const body = JSON.stringify({ subscription: { type: "stream.online" } });
+    const res = await POST(
+      await signedRequest({ body, timestamp: "2020-01-01T00:00:00.000Z" }),
+    );
+    expect(res.status).toBe(403);
+    expect(writeStore).not.toHaveBeenCalled();
+  });
 });

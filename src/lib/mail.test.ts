@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { LINKS } from "./links";
-import { sendSponsorApplication, sponsorMailSubject } from "./mail";
+import { sendSponsorApplication, sponsorMailSubject, sponsorMailto } from "./mail";
 
 const application = {
   company: "Acme",
@@ -35,6 +35,12 @@ describe("partner apply routing", () => {
   it("builds the Mythic Talent subject line", () => {
     expect(sponsorMailSubject(application)).toBe("[Sponsor] Acme — Hardware — Q4");
     expect(sponsorMailSubject({ ...application, dates: "" })).toBe("[Sponsor] Acme — Hardware — TBD");
+  });
+
+  it("encodes the subject in a mailto URL", () => {
+    expect(sponsorMailto("Tigz@mythictalent.com", "[Sponsor] Acme — Hardware — Q4")).toBe(
+      `mailto:Tigz@mythictalent.com?subject=${encodeURIComponent("[Sponsor] Acme — Hardware — Q4")}`,
+    );
   });
 
   it("returns a mailto fallback when Resend is unset and never includes a secret", async () => {

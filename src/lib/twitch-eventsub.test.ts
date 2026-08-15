@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { eventSubSignature, eventSubTimestampIsFresh, verifyEventSubHmac } from "./twitch-eventsub";
+import {
+  EVENTSUB_REPLAY_WINDOW_MS,
+  eventSubSignature,
+  eventSubTimestampIsFresh,
+  verifyEventSubHmac,
+} from "./twitch-eventsub";
 
 describe("EventSub HMAC verification", () => {
   const secret = "test-eventsub-secret";
@@ -64,5 +69,26 @@ describe("EventSub timestamp freshness", () => {
   it("rejects a stale timestamp", () => {
     const now = Date.parse("2026-08-15T21:20:00.000Z");
     expect(eventSubTimestampIsFresh("2026-08-15T21:00:00.000Z", now)).toBe(false);
+  });
+
+  it("accepts a timestamp exactly at the replay window", () => {
+    const sent = "2026-08-15T21:00:00.000Z";
+    const now = Date.parse(sent) + EVENTSUB_REPLAY_WINDOW_MS;
+    expect(eventSubTimestampIsFresh(sent, now)).toBe(true);
+  });
+
+  it("rejects a timestamp just outside the replay window", () => {
+    const sent = "2026-08-15T21:00:00.000Z";
+    const now = Date.parse(sent) + EVENTSUB_REPLAY_WINDOW_MS + 1;
+    expect(eventSubTimestampIsFresh(sent, now)).toBe(false);
+  });
+
+  it("rejects a future timestamp outside the replay window", () => {
+    const now = Date.parse("2026-08-15T21:00:00.000Z");
+    expect(eventSubTimestampIsFresh("2026-08-15T21:20:00.000Z", now)).toBe(false);
+  });
+
+  it("rejects an unparseable timestamp", () => {
+    expect(eventSubTimestampIsFresh("not-a-date", Date.parse("2026-08-15T21:00:00.000Z"))).toBe(false);
   });
 });
