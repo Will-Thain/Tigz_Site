@@ -26,38 +26,42 @@ export default async function WatchPage() {
         <WatchCta href={LINKS.twitch} />
       </header>
 
-      {stream.live ? (
-        <div className="frame overflow-hidden">
-          <iframe
-            title="Tigz live on Twitch"
-            src={twitchEmbedSrc()}
-            className="aspect-video w-full min-h-[300px]"
-            allowFullScreen
-          />
-          {stream.title || stream.gameName ? (
-            <p className="border-t border-sand-500/20 px-4 py-3 text-sm text-sand-300">
+      <div className="frame overflow-hidden">
+        <iframe
+          title="Tigz live on Twitch"
+          src={twitchEmbedSrc()}
+          className="aspect-video w-full min-h-[300px]"
+          allowFullScreen
+        />
+        <p className="border-t border-sand-500/20 px-4 py-3 text-sm text-sand-300">
+          {stream.live ? (
+            <>
               <span className="text-live">LIVE</span>
               {stream.gameName ? ` · ${stream.gameName}` : ""}
               {stream.title ? ` — ${stream.title}` : ""}
               {stream.viewerCount != null ? ` · ${stream.viewerCount}` : ""}
-            </p>
-          ) : null}
-        </div>
-      ) : (
-        <div className="frame p-6">
-          <p className="text-sand-300">He is offline. Use the Twitch button for VODs, or scan the schedule below.</p>
-        </div>
-      )}
+            </>
+          ) : (
+            <>
+              Offline. The muted player stays here so you can wait, or{" "}
+              <a className="text-olive-400" href={LINKS.twitch}>
+                open twitch.tv/tigz
+              </a>
+              .
+            </>
+          )}
+        </p>
+      </div>
 
       <section>
         <h2 className="mb-3 font-display text-2xl">Schedule</h2>
         {schedule.length === 0 ? (
           <p className="text-sm text-sand-500">
-            No Helix schedule yet. Add Twitch API keys in `.env.local`, or follow{" "}
+            No upcoming raids listed here yet. Follow{" "}
             <a className="text-olive-400" href={LINKS.twitch}>
               twitch.tv/tigz
-            </a>
-            .
+            </a>{" "}
+            for the next stream.
           </p>
         ) : (
           <ul className="space-y-2">
@@ -73,40 +77,62 @@ export default async function WatchPage() {
         )}
       </section>
 
-      {videos.length > 0 ? (
-        <MediaRow title="Recent VODs" items={videos.map((v) => ({ id: v.id, title: v.title, url: v.url, image: v.thumbnailUrl }))} />
-      ) : null}
-      {clips.length > 0 ? (
-        <MediaRow title="Clips" items={clips.map((c) => ({ id: c.id, title: c.title, url: c.url, image: c.thumbnailUrl }))} />
-      ) : null}
-      {youtube.length > 0 ? (
-        <MediaRow title="YouTube" items={youtube.map((v) => ({ id: v.id, title: v.title, url: v.url, image: v.thumbnailUrl }))} />
-      ) : null}
+      <MediaRow
+        title="Recent VODs"
+        href={LINKS.twitchVideos}
+        empty="No recent VODs on this hub yet. Twitch keeps broadcasts at twitch.tv/tigz/videos."
+        items={videos.map((v) => ({ id: v.id, title: v.title, url: v.url, image: v.thumbnailUrl }))}
+      />
+      <MediaRow
+        title="Clips"
+        href={LINKS.twitch}
+        empty="No clips listed yet. Check twitch.tv/tigz for recent raids."
+        items={clips.map((c) => ({ id: c.id, title: c.title, url: c.url, image: c.thumbnailUrl }))}
+      />
+      <MediaRow
+        title="YouTube"
+        href={LINKS.youtube}
+        empty="No uploads in the RSS feed yet. The channel is youtube.com/@tigztwitch."
+        items={youtube.map((v) => ({ id: v.id, title: v.title, url: v.url, image: v.thumbnailUrl }))}
+      />
     </div>
   );
 }
 
 function MediaRow({
   title,
+  href,
+  empty,
   items,
 }: {
   title: string;
+  href: string;
+  empty: string;
   items: { id: string; title: string; url: string; image: string }[];
 }) {
   return (
     <section>
-      <h2 className="mb-3 font-display text-2xl">{title}</h2>
-      <div className="grid gap-4 sm:grid-cols-3">
-        {items.slice(0, 6).map((item) => (
-          <a key={item.id} href={item.url} className="frame overflow-hidden">
-            {item.image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={item.image} alt="" className="aspect-video w-full object-cover" />
-            ) : null}
-            <p className="p-3 text-sm">{item.title}</p>
-          </a>
-        ))}
+      <div className="mb-3 flex items-end justify-between gap-3">
+        <h2 className="font-display text-2xl">{title}</h2>
+        <a href={href} className="font-mono text-[11px] stencil text-olive-400">
+          Open
+        </a>
       </div>
+      {items.length === 0 ? (
+        <p className="text-sm text-sand-500">{empty}</p>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-3">
+          {items.slice(0, 6).map((item) => (
+            <a key={item.id} href={item.url} className="frame overflow-hidden">
+              {item.image ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={item.image} alt="" className="aspect-video w-full object-cover" />
+              ) : null}
+              <p className="p-3 text-sm">{item.title}</p>
+            </a>
+          ))}
+        </div>
+      )}
     </section>
   );
 }

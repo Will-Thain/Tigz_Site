@@ -17,6 +17,14 @@ describe("twitchEmbedSrc", () => {
     process.env.NEXT_PUBLIC_SITE_HOST = "tigz.example";
     const src = twitchEmbedSrc();
     expect(src).toContain("parent=tigz.example");
+    expect(src).toContain("parent=www.tigz.example");
     expect(src).not.toContain("https://tigz.example");
+  });
+
+  it("strips a scheme if one is accidentally set on SITE_HOST", () => {
+    process.env.NEXT_PUBLIC_SITE_HOST = "https://watch.tigz.example/path";
+    const src = twitchEmbedSrc();
+    expect(src).toContain("parent=watch.tigz.example");
+    expect(src).not.toContain("parent=https");
   });
 });

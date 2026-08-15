@@ -29,6 +29,9 @@ export default async function HomePage() {
         </p>
         <div className="flex flex-wrap items-center gap-3">
           <WatchCta href={LINKS.twitch} label={stream.live ? "Join the live raid" : "Open Twitch"} />
+          <Link href="/watch" className="border border-sand-500/30 px-3 py-1.5 font-mono text-[11px] stencil text-sand-100">
+            {stream.live ? "Watch here" : "Schedule & VODs"}
+          </Link>
           <a href={LINKS.youtube} className="border border-sand-500/30 px-3 py-1.5 font-mono text-[11px] stencil text-sand-100">
             YouTube
           </a>
@@ -41,9 +44,19 @@ export default async function HomePage() {
             <span className="text-live">LIVE</span>
             {stream.gameName ? ` · ${stream.gameName}` : ""}
             {stream.title ? ` — ${stream.title}` : ""}
+            {" · "}
+            <Link href="/watch" className="text-olive-400">
+              Open the watch page
+            </Link>
           </p>
         ) : (
-          <p className="text-sm text-sand-500">Offline. VODs and the next scheduled raid are on /watch.</p>
+          <p className="text-sm text-sand-500">
+            Offline.{" "}
+            <Link href="/watch" className="text-olive-400">
+              VODs and the next scheduled raid
+            </Link>{" "}
+            are on /watch.
+          </p>
         )}
       </section>
 

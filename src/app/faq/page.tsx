@@ -1,13 +1,11 @@
-import { faqs as seedFaqs } from "@/data/faqs";
+import { loadFaqs } from "@/data/faqs";
 import { FaqSearch } from "@/components/FaqSearch";
-import { readStore } from "@/lib/store";
-import type { Faq } from "@/data/faqs";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "FAQ" };
 
 export default async function FaqPage() {
-  const faqs = await readStore<Faq[]>("faqs", seedFaqs);
+  const faqs = await loadFaqs();
 
   return (
     <div className="space-y-6">

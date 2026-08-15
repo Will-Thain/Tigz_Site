@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { and, eq, sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import {
@@ -16,6 +16,10 @@ type StoredVote = {
   voterKey: string;
   createdAt: string;
 };
+
+export function hashVoterKey(cookie: string, ip?: string) {
+  return createHash("sha256").update(`${cookie}:${ip ?? ""}`).digest("hex");
+}
 
 function normalizePolls(rows: Poll[]): Poll[] {
   return rows.map((poll) => ({

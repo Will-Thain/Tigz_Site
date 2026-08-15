@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
 import { writeStore } from "@/lib/store";
-import { subscribeToStreamEvents } from "@/lib/twitch-eventsub";
+import {
+  eventSubTimestampIsFresh,
+  subscribeToStreamEvents,
+  timingSafeEqual,
+  verifyEventSubHmac,
+} from "@/lib/twitch-eventsub";
 import type { LiveFlag } from "@/lib/twitch";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
-const REPLAY_WINDOW_MS = 10 * 60 * 1000;
 
 type EventSubBody = {
   challenge?: string;
@@ -31,13 +34,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing EventSub headers" }, { status: 400 });
     }
 
-    const expected = `sha256=${await hmacSha256Hex(secret, messageId + timestamp + rawBody)}`;
-    if (!timingSafeEqual(expected, signature.toLowerCase())) {
+    const valid = await verifyEventSubHmac({
+      secret,
+      messageId,
+      timestamp,
+      body: rawBody,
+      signature,
+    });
+    if (!valid) {
       return NextResponse.json({ error: "Invalid signature" }, { status: 403 });
     }
 
-    const sentAt = Date.parse(timestamp);
-    if (!Number.isFinite(sentAt) || Math.abs(Date.now() - sentAt) > REPLAY_WINDOW_MS) {
+    if (!eventSubTimestampIsFresh(timestamp)) {
       return NextResponse.json({ error: "Stale message" }, { status: 403 });
     }
 
@@ -112,29 +120,4 @@ function adminTokenMatches(req: Request, url: URL) {
   const bearer = header?.toLowerCase().startsWith("bearer ") ? header.slice(7) : "";
   const token = bearer || url.searchParams.get("token") || "";
   return timingSafeEqual(expected, token);
-}
-
-async function hmacSha256Hex(secret: string, message: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const key = await crypto.subtle.importKey(
-    "raw",
-    encoder.encode(secret),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"],
-  );
-  const digest = await crypto.subtle.sign("HMAC", key, encoder.encode(message));
-  return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
-}
-
-function timingSafeEqual(a: string, b: string) {
-  const encoder = new TextEncoder();
-  const aa = encoder.encode(a);
-  const bb = encoder.encode(b);
-  const len = Math.max(aa.length, bb.length);
-  let mismatch = aa.length ^ bb.length;
-  for (let i = 0; i < len; i++) {
-    mismatch |= (aa[i] ?? 0) ^ (bb[i] ?? 0);
-  }
-  return mismatch === 0;
 }

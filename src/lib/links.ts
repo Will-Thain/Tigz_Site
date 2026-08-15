@@ -13,12 +13,20 @@ export const TWITCH_USER_ID = "438062587";
 export const YOUTUBE_CHANNEL_ID = "UCKvHlvMpX7HMZ70w5Nyyz_w";
 
 export function siteHost() {
-  return process.env.NEXT_PUBLIC_SITE_HOST ?? "localhost";
+  const raw = process.env.NEXT_PUBLIC_SITE_HOST ?? "localhost";
+  return raw.replace(/^https?:\/\//, "").replace(/\/.*$/, "").trim() || "localhost";
+}
+
+export function twitchEmbedParents(host = siteHost()): string[] {
+  const parents = new Set<string>([host, "localhost"]);
+  if (host !== "localhost") {
+    if (host.startsWith("www.")) parents.add(host.slice(4));
+    else parents.add(`www.${host}`);
+  }
+  return [...parents];
 }
 
 export function twitchEmbedSrc(channel = TWITCH_LOGIN) {
-  const parent = siteHost();
-  const parents = new Set([parent, "localhost"]);
-  const qs = [...parents].map((p) => `parent=${encodeURIComponent(p)}`).join("&");
+  const qs = twitchEmbedParents().map((p) => `parent=${encodeURIComponent(p)}`).join("&");
   return `https://player.twitch.tv/?channel=${channel}&${qs}&muted=true`;
 }

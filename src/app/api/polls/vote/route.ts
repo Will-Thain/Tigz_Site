@@ -1,7 +1,7 @@
-import { createHash, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { votePoll } from "@/app/api/polls/store";
+import { hashVoterKey, votePoll } from "@/app/api/polls/store";
 
 function requestIp(req: Request) {
   const forwarded = req.headers.get("x-forwarded-for");
@@ -10,10 +10,6 @@ function requestIp(req: Request) {
     if (first) return first;
   }
   return req.headers.get("x-real-ip")?.trim() || undefined;
-}
-
-function voterKey(cookie: string, ip?: string) {
-  return createHash("sha256").update(`${cookie}:${ip ?? ""}`).digest("hex");
 }
 
 export async function POST(req: Request) {
@@ -29,7 +25,7 @@ export async function POST(req: Request) {
   const issued = !voter;
   if (!voter) voter = randomUUID();
 
-  const result = await votePoll(pollId, optionId, voterKey(voter, requestIp(req)));
+  const result = await votePoll(pollId, optionId, hashVoterKey(voter, requestIp(req)));
   const status = result.ok ? 200 : result.error === "Already voted." ? 409 : 400;
   const res = NextResponse.json(result, { status });
   if (issued) {
