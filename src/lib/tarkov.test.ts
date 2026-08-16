@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isTrackerReadToken, joinQuestBoard, parseTrackerSnapshot } from "./tarkov";
+import { isTrackerReadToken, itemsFromCatalogPayload, joinQuestBoard, parseTrackerSnapshot } from "./tarkov";
 
 describe("parseTrackerSnapshot", () => {
   it("reads tasksProgress arrays from a Tracker payload", () => {
@@ -47,6 +47,43 @@ describe("joinQuestBoard", () => {
       tasks: [{ id: "solo", complete: false }],
     });
     expect(board.inProgress[0]?.name).toBe("solo");
+  });
+});
+
+describe("itemsFromCatalogPayload", () => {
+  it("reads object-map dumps from json.tarkov.dev", () => {
+    const items = itemsFromCatalogPayload({
+      data: {
+        items: {
+          m4: {
+            id: "m4",
+            name: "Colt M4A1",
+            shortName: "M4A1",
+            iconLink: "https://assets.tarkov.dev/m4-icon.webp",
+            inspectImageLink: "https://assets.tarkov.dev/m4-image.webp",
+            gridImageLink: "https://assets.tarkov.dev/m4-grid-image.webp",
+            image512pxLink: "https://assets.tarkov.dev/m4-512.webp",
+          },
+        },
+      },
+    });
+    expect(items).toEqual([
+      {
+        id: "m4",
+        name: "Colt M4A1",
+        shortName: "M4A1",
+        iconLink: "https://assets.tarkov.dev/m4-icon.webp",
+        gridImageLink: "https://assets.tarkov.dev/m4-grid-image.webp",
+        inspectImageLink: "https://assets.tarkov.dev/m4-image.webp",
+        image512pxLink: "https://assets.tarkov.dev/m4-512.webp",
+        backgroundColor: undefined,
+      },
+    ]);
+  });
+
+  it("still accepts item arrays", () => {
+    const items = itemsFromCatalogPayload({ items: [{ id: "ak", name: "AK-74N" }] });
+    expect(items?.[0]).toMatchObject({ id: "ak", name: "AK-74N" });
   });
 });
 

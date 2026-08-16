@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { KitSlotGrid, KitStamp } from "@/app/kit/KitSlots";
+import { KitInspect, KitStamp } from "@/app/kit/KitSlots";
 import { getCurrentKit } from "@/lib/kit-store";
 import { hydrateItemsById } from "@/lib/tarkov";
 
@@ -12,17 +12,24 @@ export default async function KitPage() {
 
   return (
     <div className="space-y-8">
-      <header>
-        <p className="font-mono text-[11px] stencil text-olive-400">Loadout</p>
-        <h1 className="font-display text-4xl">{kit.title}</h1>
-        <p className="mt-2 max-w-2xl text-sand-300">{kit.notes}</p>
-        <KitStamp kit={kit} />
-        <p className="mt-2 font-mono text-[11px] text-sand-500">
-          Wipe {kit.wipe} · {kit.publishedBy} · published on this site, not live from the game
-        </p>
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="font-mono text-[11px] stencil text-olive-400">Character inspect</p>
+          <h1 className="font-display text-4xl">{kit.title}</h1>
+          <p className="mt-2 max-w-2xl text-sand-300">{kit.notes}</p>
+        </div>
+        <div className="text-right">
+          <p className="font-mono text-[11px] stencil text-sand-500">Wipe {kit.wipe}</p>
+          <div className="mt-2">
+            <KitStamp kit={kit} />
+          </div>
+          <p className="mt-1 font-mono text-[11px] text-sand-500">
+            {kit.publishedBy} · published here, not live from the game
+          </p>
+        </div>
       </header>
 
-      <KitSlotGrid items={kit.items} catalog={catalog} />
+      <KitInspect items={kit.items} catalog={catalog} />
 
       {kit.vodUrl ? (
         <a href={kit.vodUrl} className="inline-block font-mono text-[11px] stencil text-olive-400">

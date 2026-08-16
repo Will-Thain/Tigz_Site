@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { KitLoadoutStrip } from "@/app/kit/KitSlots";
 import { loadFaqs } from "@/data/faqs";
 import { LINKS } from "@/lib/links";
 import { getCurrentKit } from "@/lib/kit-store";
+import { hydrateItemsById } from "@/lib/tarkov";
 import { getStreamStatus } from "@/lib/twitch";
 import { getYoutubeUploads } from "@/lib/youtube";
 import { WatchCta } from "@/components/WatchCta";
@@ -15,6 +17,7 @@ export default async function HomePage() {
     getCurrentKit(),
     loadFaqs(),
   ]);
+  const kitCatalog = await hydrateItemsById(kit.items.map((item) => item.itemId));
 
   return (
     <div className="grid gap-10 lg:grid-cols-[1.4fr_0.8fr]">
@@ -60,15 +63,18 @@ export default async function HomePage() {
         )}
       </section>
 
-      <aside className="frame p-5">
+      <aside className="frame p-4 sm:p-5">
         <p className="font-mono text-[11px] stencil text-sand-500">Current kit</p>
         <h2 className="mt-2 font-display text-2xl text-sand-100">{kit.title}</h2>
         <p className="mt-2 text-sm text-sand-300">{kit.notes}</p>
-        <p className="mt-4 font-mono text-[11px] text-sand-500">
+        <div className="mt-4">
+          <KitLoadoutStrip items={kit.items} catalog={kitCatalog} />
+        </div>
+        <p className="mt-3 font-mono text-[11px] text-sand-500">
           Updated {new Date(kit.publishedAt).toUTCString()}
         </p>
-        <Link href="/kit" className="mt-4 inline-block font-mono text-[11px] stencil text-olive-400">
-          Open loadout →
+        <Link href="/kit" className="mt-3 inline-block font-mono text-[11px] stencil text-olive-400">
+          Open inspect →
         </Link>
       </aside>
 

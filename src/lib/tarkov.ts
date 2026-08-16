@@ -21,6 +21,10 @@ export type TarkovItemLite = {
   name: string;
   shortName?: string;
   iconLink?: string;
+  gridImageLink?: string;
+  inspectImageLink?: string;
+  image512pxLink?: string;
+  backgroundColor?: string;
 };
 
 export type CatalogTask = {
@@ -67,13 +71,27 @@ export type QuestBoard = {
 type TrackerCache = { etag: string; body: unknown };
 let trackerCache: TrackerCache | null = null;
 
+function optionalString(value: unknown): string | undefined {
+  return typeof value === "string" && value.trim() ? value : undefined;
+}
+
+function rowsFromUnknown(value: unknown): unknown[] | null {
+  if (Array.isArray(value)) return value;
+  const rec = asRecord(value);
+  if (!rec) return null;
+  const values = Object.values(rec);
+  if (values.length === 0) return [];
+  if (values.every((row) => row && typeof row === "object")) return values;
+  return null;
+}
+
 function unwrapCatalogArray(data: unknown, keys: string[]): unknown[] | null {
   if (Array.isArray(data)) return data;
-  if (!data || typeof data !== "object") return null;
-  const obj = data as Record<string, unknown>;
+  const obj = asRecord(data);
+  if (!obj) return null;
   for (const key of keys) {
-    const value = obj[key];
-    if (Array.isArray(value)) return value;
+    const rows = rowsFromUnknown(obj[key]);
+    if (rows) return rows;
   }
   if ("data" in obj) return unwrapCatalogArray(obj.data, keys);
   return null;
@@ -108,19 +126,27 @@ function mapItems(data: unknown[]): TarkovItemLite[] {
     items.push({
       id,
       name,
-      shortName: typeof item.shortName === "string" ? item.shortName : undefined,
-      iconLink: typeof item.iconLink === "string" ? item.iconLink : undefined,
+      shortName: optionalString(item.shortName),
+      iconLink: optionalString(item.iconLink),
+      gridImageLink: optionalString(item.gridImageLink),
+      inspectImageLink: optionalString(item.inspectImageLink),
+      image512pxLink: optionalString(item.image512pxLink),
+      backgroundColor: optionalString(item.backgroundColor),
     });
   }
   return items;
 }
 
-export async function fetchCatalogItemIndex(): Promise<TarkovItemLite[] | null> {
-  const data = await fetchCatalogJson("/regular/items");
-  if (data == null) return null;
+export function itemsFromCatalogPayload(data: unknown): TarkovItemLite[] | null {
   const rows = unwrapCatalogArray(data, ["items"]);
   if (!rows) return null;
   return mapItems(rows);
+}
+
+export async function fetchCatalogItemIndex(): Promise<TarkovItemLite[] | null> {
+  const data = await fetchCatalogJson("/regular/items");
+  if (data == null) return null;
+  return itemsFromCatalogPayload(data);
 }
 
 export async function hydrateItemsById(ids: string[]): Promise<Map<string, TarkovItemLite>> {
