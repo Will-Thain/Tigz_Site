@@ -16,6 +16,12 @@ const CATALOG_BASE = "https://json.tarkov.dev";
 const TRACKER_PROGRESS_URL = "https://api.tarkovtracker.org/progress";
 const TRACKER_UA = "TigzHub/1.0 (+https://github.com/Tigz_Site)";
 
+export type CatalogSlot = {
+  nameId: string;
+  name: string;
+  allowedItemIds: string[];
+};
+
 export type TarkovItemLite = {
   id: string;
   name: string;
@@ -25,6 +31,20 @@ export type TarkovItemLite = {
   inspectImageLink?: string;
   image512pxLink?: string;
   backgroundColor?: string;
+  weight?: number;
+  types?: string[];
+  caliber?: string;
+  ergonomics?: number;
+  recoilVertical?: number;
+  recoilHorizontal?: number;
+  fireRate?: number;
+  velocity?: number;
+  effectiveDistance?: number;
+  fireModes?: string[];
+  containsIds?: string[];
+  slots?: CatalogSlot[];
+  defaultWidth?: number;
+  defaultHeight?: number;
 };
 
 export type CatalogTask = {
@@ -115,6 +135,71 @@ async function fetchCatalogJson(path: string): Promise<unknown | null> {
   }
 }
 
+function optionalNumber(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
+function stringList(value: unknown): string[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const out = value.filter((row): row is string => typeof row === "string" && row.trim().length > 0);
+  return out.length > 0 ? out : undefined;
+}
+
+function idList(value: unknown): string[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const ids: string[] = [];
+  for (const row of value) {
+    if (typeof row === "string" && row.trim()) {
+      ids.push(row);
+      continue;
+    }
+    const rec = asRecord(row);
+    const id = optionalString(rec?.id);
+    if (id) ids.push(id);
+  }
+  return ids.length > 0 ? ids : undefined;
+}
+
+function mapContainsIds(value: unknown): string[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const ids: string[] = [];
+  for (const row of value) {
+    if (typeof row === "string" && row.trim()) {
+      ids.push(row);
+      continue;
+    }
+    const rec = asRecord(row);
+    if (!rec) continue;
+    if (typeof rec.item === "string" && rec.item.trim()) {
+      ids.push(rec.item);
+      continue;
+    }
+    const nested = asRecord(rec.item);
+    const nestedId = optionalString(nested?.id) ?? optionalString(rec.id);
+    if (nestedId) ids.push(nestedId);
+  }
+  return ids.length > 0 ? ids : undefined;
+}
+
+function mapCatalogSlots(value: unknown): CatalogSlot[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const slots: CatalogSlot[] = [];
+  for (const row of value) {
+    const rec = asRecord(row);
+    if (!rec) continue;
+    const nameId = optionalString(rec.nameId) ?? optionalString(rec.name);
+    if (!nameId) continue;
+    const filters = asRecord(rec.filters);
+    const allowed = idList(filters?.allowedItems) ?? idList(rec.allowedItems) ?? [];
+    slots.push({
+      nameId,
+      name: optionalString(rec.name) ?? nameId,
+      allowedItemIds: allowed,
+    });
+  }
+  return slots.length > 0 ? slots : undefined;
+}
+
 function mapItems(data: unknown[]): TarkovItemLite[] {
   const items: TarkovItemLite[] = [];
   for (const row of data) {
@@ -123,6 +208,7 @@ function mapItems(data: unknown[]): TarkovItemLite[] {
     const id = typeof item.id === "string" ? item.id : null;
     const name = typeof item.name === "string" ? item.name : null;
     if (!id || !name) continue;
+    const props = asRecord(item.properties);
     items.push({
       id,
       name,
@@ -132,6 +218,20 @@ function mapItems(data: unknown[]): TarkovItemLite[] {
       inspectImageLink: optionalString(item.inspectImageLink),
       image512pxLink: optionalString(item.image512pxLink),
       backgroundColor: optionalString(item.backgroundColor),
+      weight: optionalNumber(item.weight),
+      types: stringList(item.types),
+      caliber: optionalString(props?.caliber),
+      ergonomics: optionalNumber(props?.ergonomics) ?? optionalNumber(item.ergonomicsModifier),
+      recoilVertical: optionalNumber(props?.recoilVertical),
+      recoilHorizontal: optionalNumber(props?.recoilHorizontal),
+      fireRate: optionalNumber(props?.fireRate),
+      velocity: optionalNumber(props?.velocity) ?? optionalNumber(item.velocity),
+      effectiveDistance: optionalNumber(props?.effectiveDistance),
+      fireModes: stringList(props?.fireModes),
+      containsIds: mapContainsIds(item.containsItems) ?? mapContainsIds(props?.containsItems),
+      slots: mapCatalogSlots(props?.slots) ?? mapCatalogSlots(item.slots),
+      defaultWidth: optionalNumber(props?.defaultWidth),
+      defaultHeight: optionalNumber(props?.defaultHeight),
     });
   }
   return items;
@@ -156,10 +256,15 @@ export async function hydrateItemsById(ids: string[]): Promise<Map<string, Tarko
 
   const items = await fetchCatalogItemIndex();
   if (!items) return map;
-  const wanted = new Set(unique);
-  for (const item of items) {
-    if (wanted.has(item.id)) map.set(item.id, item);
-  }
+  const index = new Map(items.map((item) => [item.id, item]));
+
+  const add = (id: string) => {
+    const item = index.get(id);
+    if (!item || map.has(id)) return;
+    map.set(id, item);
+    for (const contained of item.containsIds ?? []) add(contained);
+  };
+  for (const id of unique) add(id);
   return map;
 }
 

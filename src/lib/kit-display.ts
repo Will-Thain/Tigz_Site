@@ -3,6 +3,62 @@ import type { TarkovItemLite } from "@/lib/tarkov";
 
 const WEAPON_SLOTS = new Set<KitSlot>(["Primary", "Secondary", "Pistol"]);
 
+/** Weapons sit left of the PMC, matching Totov Builder /build. */
+export const WEAPON_COLUMN_SLOTS: KitSlot[] = ["Primary", "Secondary", "Pistol"];
+
+/** Gear sits right of the PMC. Ammo is a caption, not a body slot. */
+export const GEAR_COLUMN_SLOTS: KitSlot[] = ["Headset", "Armor", "Rig", "Backpack"];
+
+export const BODY_SLOTS: KitSlot[] = [...WEAPON_COLUMN_SLOTS, ...GEAR_COLUMN_SLOTS];
+
+const TILE_COLORS: Record<string, string> = {
+  black: "#161612",
+  blue: "#152433",
+  yellow: "#2f2a14",
+  orange: "#2f2212",
+  violet: "#24162f",
+  purple: "#24162f",
+  green: "#162414",
+  red: "#2c1414",
+  default: "#1a1a14",
+  grey: "#1e1e18",
+  gray: "#1e1e18",
+};
+
+const SLOT_LABEL_ALIASES: Record<string, string> = {
+  "pistol grip": "Pistol grip",
+  reciever: "Receiver",
+  receiver: "Receiver",
+  magazine: "Magazine",
+  stock: "Stock",
+  charge: "Charging handle",
+  muzzle: "Muzzle",
+  scope: "Scope",
+  tactical: "Tactical",
+  foregrip: "Foregrip",
+  barrel: "Barrel",
+  handguard: "Handguard",
+  "gas block": "Gas block",
+  mount: "Mount",
+  "sight rear": "Rear sight",
+  "sight front": "Front sight",
+  "bipod": "Bipod",
+};
+
+export type WeaponStat = {
+  id: string;
+  label: string;
+  value: string;
+};
+
+export type ComponentNode = {
+  id: string;
+  slotLabel: string;
+  name: string;
+  shortName?: string;
+  image?: string;
+};
+
 export function isUnpublishedSlot(item: KitItem | undefined): boolean {
   if (!item) return true;
   if (item.itemId) return false;
@@ -45,6 +101,10 @@ export function kitSlotsInOrder(items: KitItem[]): KitItem[] {
   return KIT_SLOTS.map((slot) => itemForSlot(items, slot) ?? { slot, itemId: "", label: "Unpublished" });
 }
 
+export function bodySlotsInOrder(items: KitItem[]): KitItem[] {
+  return BODY_SLOTS.map((slot) => itemForSlot(items, slot) ?? { slot, itemId: "", label: "Unpublished" });
+}
+
 /** Stash-cell size and in-game equipment label. Not a live loadout. */
 export const SLOT_UI: Record<KitSlot, { label: string; cols: number; rows: number }> = {
   Primary: { label: "On sling", cols: 5, rows: 2 },
@@ -56,3 +116,122 @@ export const SLOT_UI: Record<KitSlot, { label: string; cols: number; rows: numbe
   Headset: { label: "Earpiece", cols: 2, rows: 2 },
   Ammo: { label: "Ammo", cols: 1, rows: 1 },
 };
+
+export function slotCellSize(slot: KitSlot, catalog?: TarkovItemLite): { cols: number; rows: number } {
+  const fallback = SLOT_UI[slot];
+  const cols = catalog?.defaultWidth;
+  const rows = catalog?.defaultHeight;
+  if (cols && rows && cols > 0 && rows > 0) return { cols, rows };
+  return { cols: fallback.cols, rows: fallback.rows };
+}
+
+export function cellBackground(color?: string): string {
+  if (!color) return TILE_COLORS.default;
+  return TILE_COLORS[color.toLowerCase()] ?? TILE_COLORS.default;
+}
+
+export function formatCaliber(caliber?: string): string | undefined {
+  if (!caliber) return undefined;
+  let text = caliber.replace(/^Caliber/i, "").trim();
+  if (!text) return undefined;
+  text = text.replace(/([0-9])([A-Za-z]{2,})/g, "$1 $2");
+  text = text.replace(/^(\d)(\d{2})x/, "$1.$2x");
+  text = text.replace(/^([456])(\d)x/, "$1.$2x");
+  return text.replace(/\s+/g, " ").trim();
+}
+
+export function weaponStats(item?: TarkovItemLite): WeaponStat[] {
+  if (!item) return [];
+  const rows: WeaponStat[] = [];
+  if (item.ergonomics != null) rows.push({ id: "ergo", label: "Ergo", value: String(item.ergonomics) });
+  if (item.recoilVertical != null) {
+    rows.push({ id: "vrec", label: "V recoil", value: String(item.recoilVertical) });
+  }
+  if (item.recoilHorizontal != null) {
+    rows.push({ id: "hrec", label: "H recoil", value: String(item.recoilHorizontal) });
+  }
+  if (item.fireRate != null) rows.push({ id: "rof", label: "ROF", value: `${item.fireRate}` });
+  if (item.weight != null) rows.push({ id: "kg", label: "Weight", value: `${item.weight.toFixed(2)} kg` });
+  const caliber = formatCaliber(item.caliber);
+  if (caliber) rows.push({ id: "cal", label: "Caliber", value: caliber });
+  if (item.effectiveDistance != null) {
+    rows.push({ id: "range", label: "Range", value: `${item.effectiveDistance} m` });
+  }
+  return rows;
+}
+
+function catalogDisplayName(item?: TarkovItemLite, fallback = "Unknown"): string {
+  if (!item) return fallback;
+  if (item.name && !isPlaceholderCatalogName(item.id, item.name)) return item.name;
+  return fallback;
+}
+
+function catalogShortName(item?: TarkovItemLite): string | undefined {
+  if (!item?.shortName) return undefined;
+  if (item.shortName === `${item.id} ShortName` || isPlaceholderCatalogName(item.id, item.shortName)) {
+    return undefined;
+  }
+  return item.shortName;
+}
+
+function titleCaseSlot(value: string): string {
+  return value
+    .split(" ")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+export function humanSlotLabel(nameId?: string, name?: string): string {
+  const readableName = name?.trim();
+  if (readableName && !/^mod_/i.test(readableName) && readableName !== nameId) {
+    return readableName;
+  }
+  const raw = (nameId ?? name ?? "Attachment").replace(/^mod_/i, "").replace(/_/g, " ").trim();
+  return SLOT_LABEL_ALIASES[raw.toLowerCase()] ?? titleCaseSlot(raw);
+}
+
+export function componentOverview(
+  weapon?: TarkovItemLite,
+  catalog?: Map<string, TarkovItemLite>,
+): ComponentNode[] {
+  if (!weapon?.containsIds?.length) return [];
+  return weapon.containsIds.map((id) => {
+    const part = catalog?.get(id);
+    const slot = weapon.slots?.find((row) => row.allowedItemIds.includes(id));
+    return {
+      id,
+      slotLabel: humanSlotLabel(slot?.nameId, slot?.name),
+      name: catalogDisplayName(part, id),
+      shortName: catalogShortName(part),
+      image: part?.iconLink || part?.gridImageLink || part?.inspectImageLink,
+    };
+  });
+}
+
+export function overviewWeapon(
+  items: KitItem[],
+  catalog: Map<string, TarkovItemLite>,
+): TarkovItemLite | undefined {
+  for (const slot of WEAPON_COLUMN_SLOTS) {
+    const item = itemForSlot(items, slot);
+    if (!item?.itemId) continue;
+    const hydrated = catalog.get(item.itemId);
+    if (!hydrated) continue;
+    if (weaponStats(hydrated).length > 0 || (hydrated.containsIds?.length ?? 0) > 0) return hydrated;
+  }
+  return undefined;
+}
+
+export function ammoCaption(
+  items: KitItem[],
+  catalog: Map<string, TarkovItemLite>,
+): { unpublished: boolean; name: string; detail?: string } {
+  const ammo = itemForSlot(items, "Ammo") ?? { slot: "Ammo" as const, itemId: "", label: "Unpublished" };
+  const hydrated = ammo.itemId ? catalog.get(ammo.itemId) : undefined;
+  return {
+    unpublished: isUnpublishedSlot(ammo),
+    name: resolveKitItemName(ammo, hydrated),
+    detail: ammo.detail,
+  };
+}

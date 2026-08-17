@@ -1,7 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { SLOT_UI } from "@/lib/kit-display";
+import { BODY_SLOTS, GEAR_COLUMN_SLOTS, SLOT_UI, WEAPON_COLUMN_SLOTS } from "@/lib/kit-display";
 
 describe("KitSlots Tarkov-style layout", () => {
+  describe("Totov Builder silhouette columns", () => {
+    it("places weapons left, gear right, and keeps ammo off the body", () => {
+      expect(WEAPON_COLUMN_SLOTS).toEqual(["Primary", "Secondary", "Pistol"]);
+      expect(GEAR_COLUMN_SLOTS).toEqual(["Headset", "Armor", "Rig", "Backpack"]);
+      expect(BODY_SLOTS).not.toContain("Ammo");
+    });
+  });
+
   describe("Equipment slot CSS variables and sizing", () => {
     it("configures weapon slots as wide horizontal bars", () => {
       // Primary and Secondary should be 5x2 bars labeled "On sling" and "On back"

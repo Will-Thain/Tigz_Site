@@ -67,18 +67,63 @@ describe("itemsFromCatalogPayload", () => {
         },
       },
     });
-    expect(items).toEqual([
-      {
-        id: "m4",
-        name: "Colt M4A1",
-        shortName: "M4A1",
-        iconLink: "https://assets.tarkov.dev/m4-icon.webp",
-        gridImageLink: "https://assets.tarkov.dev/m4-grid-image.webp",
-        inspectImageLink: "https://assets.tarkov.dev/m4-image.webp",
-        image512pxLink: "https://assets.tarkov.dev/m4-512.webp",
-        backgroundColor: undefined,
-      },
-    ]);
+    expect(items?.[0]).toMatchObject({
+      id: "m4",
+      name: "Colt M4A1",
+      shortName: "M4A1",
+      iconLink: "https://assets.tarkov.dev/m4-icon.webp",
+      gridImageLink: "https://assets.tarkov.dev/m4-grid-image.webp",
+      inspectImageLink: "https://assets.tarkov.dev/m4-image.webp",
+      image512pxLink: "https://assets.tarkov.dev/m4-512.webp",
+    });
+  });
+
+  it("reads weapon properties, slots, and contained parts", () => {
+    const items = itemsFromCatalogPayload({
+      items: [
+        {
+          id: "m4",
+          name: "Colt M4A1",
+          weight: 2.9,
+          types: ["gun"],
+          containsItems: [{ item: "grip", count: 1 }, { item: { id: "mag" }, count: 1 }],
+          properties: {
+            caliber: "Caliber556x45NATO",
+            ergonomics: 48,
+            recoilVertical: 119,
+            recoilHorizontal: 342,
+            fireRate: 800,
+            effectiveDistance: 500,
+            fireModes: ["single", "fullauto"],
+            defaultWidth: 5,
+            defaultHeight: 2,
+            slots: [
+              {
+                nameId: "mod_pistol_grip",
+                name: "Pistol Grip",
+                filters: { allowedItems: ["grip", { id: "other" }] },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    expect(items?.[0]).toMatchObject({
+      id: "m4",
+      weight: 2.9,
+      types: ["gun"],
+      caliber: "Caliber556x45NATO",
+      ergonomics: 48,
+      recoilVertical: 119,
+      recoilHorizontal: 342,
+      fireRate: 800,
+      effectiveDistance: 500,
+      fireModes: ["single", "fullauto"],
+      containsIds: ["grip", "mag"],
+      defaultWidth: 5,
+      defaultHeight: 2,
+      slots: [{ nameId: "mod_pistol_grip", name: "Pistol Grip", allowedItemIds: ["grip", "other"] }],
+    });
   });
 
   it("still accepts item arrays", () => {

@@ -95,17 +95,20 @@ export function SlotGlyph({ slot }: { slot: KitSlot }) {
 
 export function PmcFigure() {
   return (
-    <svg viewBox="0 0 120 260" className="eft-pmc" aria-hidden>
-      <g fill="#2a2c24" stroke="#6a6a55" strokeWidth="1.6">
-        <ellipse cx="60" cy="28" rx="16" ry="18" />
-        <path d="M38 52h44c16 8 22 28 22 48v18H16V100c0-20 6-40 22-48z" />
-        <path d="M16 118h20v86c0 8 6 14 14 14h6V132h24v86h6c8 0 14-6 14-14v-86h20" />
-        <path d="M44 218h12v36H44zM64 218h12v36H64z" />
+    <svg viewBox="0 0 140 360" className="eft-pmc" aria-hidden>
+      <g fill="#3a3a32" stroke="#6e6e62" strokeWidth="1.4" strokeLinejoin="round">
+        <ellipse cx="70" cy="32" rx="18" ry="20" />
+        <path d="M52 52c10-4 26-4 36 0 18 10 28 32 30 58v22H22V110c2-26 12-48 30-58z" />
+        <path d="M22 132h22v18H22zM96 132h22v18H96z" />
+        <path d="M28 150h18v78c0 6-4 12-10 16l-8 6M112 150H94v78c0 6 4 12 10 16l8 6" />
+        <path d="M46 132h48v92c0 10-6 16-16 16H62c-10 0-16-6-16-16z" />
+        <path d="M52 240h14v88H52zM74 240h14v88H74z" />
       </g>
-      <g fill="none" stroke="#8f866f" strokeWidth="1.2" opacity="0.7">
-        <path d="M48 20h24" />
-        <path d="M36 72h48" />
-        <path d="M44 108h32" />
+      <g fill="none" stroke="#8a8474" strokeWidth="1.1" opacity="0.55">
+        <path d="M56 24h28" />
+        <path d="M44 86h52" />
+        <path d="M54 128h32" />
+        <path d="M58 176h24" />
       </g>
     </svg>
   );

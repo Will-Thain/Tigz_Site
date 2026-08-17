@@ -34,19 +34,24 @@ body {
 }
 
 .eft-equipment {
-  --eft-cell: clamp(32px, 4.6vw, 50px);
-  --eft-line: rgba(196, 181, 138, 0.16);
+  --eft-cell: 64px;
+  --eft-line: rgba(196, 181, 138, 0.18);
   border: 1px solid #3d3d2e;
   background:
-    radial-gradient(ellipse at 50% 30%, rgba(40, 42, 32, 0.9), #090a08 72%);
+    radial-gradient(ellipse at 50% 28%, rgba(38, 40, 30, 0.92), #090a08 74%);
   box-shadow:
     inset 0 0 0 1px rgba(0, 0, 0, 0.7),
     inset 0 40px 80px rgba(0, 0, 0, 0.45);
 }
 
+@media (max-width: 1100px) {
+  .eft-equipment {
+    --eft-cell: clamp(40px, 5.4vw, 64px);
+  }
+}
+
 .eft-equipment-compact {
-  --eft-cell: clamp(16px, 3.2vw, 22px);
-  padding: 8px;
+  --eft-cell: clamp(18px, 3.1vw, 28px);
 }
 
 .eft-equipment-bar {
@@ -63,78 +68,57 @@ body {
   color: #d4c59a;
 }
 
-.eft-equipment-stage {
+.eft-inspect {
   display: grid;
-  gap: 1.25rem;
-  padding: 1rem 1rem 1.25rem;
+  grid-template-columns: auto minmax(7rem, 1fr) auto;
+  align-items: start;
+  justify-content: center;
+  gap: 1rem 1.25rem;
+  padding: 1.1rem 1rem 1.2rem;
 }
 
-@media (min-width: 900px) {
-  .eft-equipment-stage {
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.95fr);
-    align-items: end;
-  }
-}
-
-.eft-doll {
-  display: grid;
-  justify-items: center;
-  gap: 0.75rem;
-}
-
-@media (min-width: 700px) {
-  .eft-doll {
-    grid-template-columns: auto minmax(7rem, 1fr) auto;
-    grid-template-areas: "ear pmc gear";
-    align-items: start;
+@media (max-width: 820px) {
+  .eft-inspect {
+    grid-template-columns: 1fr;
     justify-items: center;
   }
 
-  .eft-doll-ear {
-    grid-area: ear;
-    padding-top: 0.5rem;
-  }
-
-  .eft-doll-body {
-    grid-area: pmc;
-  }
-
-  .eft-doll-gear {
-    grid-area: gear;
+  .eft-inspect-pmc {
+    order: -1;
   }
 }
 
-.eft-doll-gear {
+.eft-column {
   display: flex;
   flex-direction: column;
   gap: 0.55rem;
+}
+
+.eft-inspect-pmc {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 16rem;
+  pointer-events: none;
 }
 
 .eft-pmc {
-  height: min(320px, 52vw);
+  height: min(420px, 58vw);
   width: auto;
-  filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.55));
+  filter: grayscale(1) contrast(0.92) drop-shadow(0 14px 18px rgba(0, 0, 0, 0.55));
 }
 
-.eft-weapon-rack {
-  display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
+.eft-equipment-compact .eft-inspect {
+  gap: 0.4rem 0.55rem;
+  padding: 0.55rem;
 }
 
-.eft-weapon-side,
-.eft-compact-gear {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-  align-items: end;
+.eft-equipment-compact .eft-inspect-pmc {
+  min-height: 8rem;
 }
 
-.eft-history-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-  padding: 8px;
+.eft-equipment-compact .eft-pmc {
+  height: min(180px, 36vw);
 }
 
 .eft-slot {
@@ -143,8 +127,8 @@ body {
   height: calc(var(--rows) * var(--eft-cell));
   max-width: 100%;
   overflow: hidden;
-  border: 1px solid #4a4a38;
-  background-color: #12130e;
+  border: 1px solid #3f3f32;
+  background-color: var(--tile, #10110d);
   background-image:
     linear-gradient(var(--eft-line) 1px, transparent 1px),
     linear-gradient(90deg, var(--eft-line) 1px, transparent 1px);
@@ -155,24 +139,24 @@ body {
 }
 
 .eft-slot:hover {
-  border-color: #c9a227;
+  border-color: #e6dcc0;
 }
 
 .eft-slot-empty {
-  background-color: #0c0d0a;
+  background-color: #0b0c09;
 }
 
 .eft-slot-label {
   position: absolute;
-  top: 3px;
-  left: 5px;
+  top: 4px;
+  left: 6px;
   z-index: 2;
   margin: 0;
   font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 9px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #9a8f6e;
+  color: #8f866f;
 }
 
 .eft-slot-body {
@@ -180,19 +164,19 @@ body {
   height: 100%;
   align-items: center;
   justify-content: center;
-  padding: 10px 6px 14px;
+  padding: 14px 8px 18px;
 }
 
 .eft-glyph {
-  width: 78%;
-  height: 62%;
-  color: #6d6a52;
-  opacity: 0.72;
+  width: 38%;
+  height: 38%;
+  color: #4e4c3c;
+  opacity: 0.42;
 }
 
 .eft-slot-item {
   max-width: 92%;
-  max-height: 86%;
+  max-height: 82%;
   object-fit: contain;
 }
 
@@ -205,7 +189,7 @@ body {
   font-size: 8px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #8f866f;
+  color: #6f6a56;
 }
 
 .eft-slot-caption {
@@ -213,7 +197,7 @@ body {
   right: 0;
   bottom: 0;
   left: 0;
-  padding: 2px 6px;
+  padding: 2px 6px 3px;
   background: linear-gradient(transparent, rgba(8, 8, 6, 0.92));
   font-family: var(--font-display), sans-serif;
   font-size: 12px;
@@ -222,15 +206,114 @@ body {
 }
 
 .eft-slot-caption p,
-.eft-slot-detail {
+.eft-slot-detail,
+.eft-slot-ammo {
   margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.eft-slot-detail {
+.eft-slot-detail,
+.eft-slot-ammo {
   font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: #8f866f;
+}
+
+.eft-slot-ammo-empty {
+  position: absolute;
+  left: 6px;
+  bottom: 4px;
+}
+
+.eft-overview {
+  border-top: 1px solid #3f3f32;
+  background: rgba(8, 9, 6, 0.55);
+}
+
+.eft-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
+  gap: 0;
+  border-bottom: 1px solid #2e2e24;
+}
+
+.eft-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border-right: 1px solid #2e2e24;
+}
+
+.eft-stat span {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8f866f;
+}
+
+.eft-stat strong {
+  font-family: var(--font-display), sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #e6dcc0;
+}
+
+.eft-components {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  padding: 0.85rem 1rem 1rem;
+}
+
+.eft-component {
+  width: 72px;
+}
+
+.eft-component-icon {
+  display: flex;
+  height: 64px;
+  width: 64px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #3f3f32;
+  background:
+    linear-gradient(var(--eft-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--eft-line) 1px, transparent 1px),
+    #12130e;
+  background-size: 16px 16px, 16px 16px, auto;
+}
+
+.eft-component-icon img {
+  max-width: 86%;
+  max-height: 86%;
+  object-fit: contain;
+}
+
+.eft-component-slot,
+.eft-component-name {
+  margin: 4px 0 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eft-component-slot {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8f866f;
+}
+
+.eft-component-name {
+  font-family: var(--font-display), sans-serif;
+  font-size: 11px;
+  color: #e6d9b0;
 }
