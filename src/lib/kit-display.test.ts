@@ -7,9 +7,22 @@ import {
   pickKitImage,
   resolveKitItemName,
   resolveKitShortName,
+  SLOT_UI,
 } from "./kit-display";
 
 describe("kit display", () => {
+  it("uses Tarkov stash cell sizes and equipment labels", () => {
+    expect(SLOT_UI.Primary).toEqual({ label: "On sling", cols: 5, rows: 2 });
+    expect(SLOT_UI.Secondary).toEqual({ label: "On back", cols: 5, rows: 2 });
+    expect(SLOT_UI.Pistol).toEqual({ label: "Holster", cols: 3, rows: 1 });
+    expect(SLOT_UI.Armor).toEqual({ label: "Body armor", cols: 3, rows: 3 });
+    expect(SLOT_UI.Rig).toEqual({ label: "Tactical rig", cols: 4, rows: 3 });
+    expect(SLOT_UI.Backpack).toEqual({ label: "Backpack", cols: 5, rows: 4 });
+    expect(SLOT_UI.Headset).toEqual({ label: "Earpiece", cols: 2, rows: 2 });
+    expect(SLOT_UI.Ammo).toEqual({ label: "Ammo", cols: 1, rows: 1 });
+    expect(SLOT_UI.Backpack.rows).toBeGreaterThan(SLOT_UI.Headset.rows);
+  });
+
   it("treats empty slots and Unpublished labels as unpublished", () => {
     expect(isUnpublishedSlot(undefined)).toBe(true);
     expect(isUnpublishedSlot({ slot: "Primary", itemId: "", label: "Unpublished" })).toBe(true);

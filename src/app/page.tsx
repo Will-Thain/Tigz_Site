@@ -66,7 +66,6 @@ export default async function HomePage() {
       <aside className="frame p-4 sm:p-5">
         <p className="font-mono text-[11px] stencil text-sand-500">Current kit</p>
         <h2 className="mt-2 font-display text-2xl text-sand-100">{kit.title}</h2>
-        <p className="mt-2 text-sm text-sand-300">{kit.notes}</p>
         <div className="mt-4">
           <KitLoadoutStrip items={kit.items} catalog={kitCatalog} />
         </div>

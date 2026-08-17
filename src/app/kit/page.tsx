@@ -29,7 +29,7 @@ export default async function KitPage() {
         </div>
       </header>
 
-      <KitInspect items={kit.items} catalog={catalog} />
+      <KitInspect items={kit.items} catalog={catalog} wipe={kit.wipe} />
 
       {kit.vodUrl ? (
         <a href={kit.vodUrl} className="inline-block font-mono text-[11px] stencil text-olive-400">

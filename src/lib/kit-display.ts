@@ -44,3 +44,15 @@ export function itemForSlot(items: KitItem[], slot: KitSlot): KitItem | undefine
 export function kitSlotsInOrder(items: KitItem[]): KitItem[] {
   return KIT_SLOTS.map((slot) => itemForSlot(items, slot) ?? { slot, itemId: "", label: "Unpublished" });
 }
+
+/** Stash-cell size and in-game equipment label. Not a live loadout. */
+export const SLOT_UI: Record<KitSlot, { label: string; cols: number; rows: number }> = {
+  Primary: { label: "On sling", cols: 5, rows: 2 },
+  Secondary: { label: "On back", cols: 5, rows: 2 },
+  Pistol: { label: "Holster", cols: 3, rows: 1 },
+  Armor: { label: "Body armor", cols: 3, rows: 3 },
+  Rig: { label: "Tactical rig", cols: 4, rows: 3 },
+  Backpack: { label: "Backpack", cols: 5, rows: 4 },
+  Headset: { label: "Earpiece", cols: 2, rows: 2 },
+  Ammo: { label: "Ammo", cols: 1, rows: 1 },
+};
