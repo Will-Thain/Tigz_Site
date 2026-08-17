@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { KitSlot } from "@/data/kits";
+import type { SilhouetteGlyph } from "@/lib/kit-display";
 
 function glyph(children: ReactNode, viewBox: string) {
   return (
@@ -9,84 +9,89 @@ function glyph(children: ReactNode, viewBox: string) {
   );
 }
 
-export function SlotGlyph({ slot }: { slot: KitSlot }) {
+const fill = { fill: "currentColor" };
+
+export function SlotGlyph({ slot }: { slot: SilhouetteGlyph }) {
   switch (slot) {
     case "Primary":
       return glyph(
-        <g fill="none" stroke="currentColor" strokeWidth="3" strokeLinejoin="round">
-          <path d="M18 44h28l8-8h72l12 8H186" />
-          <path d="M46 36h54v-8h18v8" />
-          <rect x="70" y="44" width="14" height="22" />
-          <path d="M18 44v14h16" />
-          <path d="M158 36h22v8" />
-        </g>,
-        "0 0 200 80",
+        <>
+          <text x="6" y="22" fontSize="18" fontFamily="ui-monospace, monospace" {...fill}>
+            1
+          </text>
+          <path
+            d="M18 52l10-8h22l6-8h28l8 8h36l14 8v6H28zM40 44v-8h16v8M92 36h18v8"
+            {...fill}
+          />
+        </>,
+        "0 0 160 64",
       );
     case "Secondary":
       return glyph(
-        <g fill="none" stroke="currentColor" strokeWidth="3" strokeLinejoin="round">
-          <path d="M24 46h40l6-10h50l10 10h46" />
-          <path d="M70 36h36v-8h12v8" />
-          <rect x="88" y="46" width="12" height="18" />
-          <path d="M24 46v12h14" />
-        </g>,
-        "0 0 200 80",
+        <>
+          <text x="6" y="22" fontSize="18" fontFamily="ui-monospace, monospace" {...fill}>
+            2
+          </text>
+          <path d="M22 50l8-10h18l6-8h24l8 8h32l12 10v6H30z" {...fill} />
+        </>,
+        "0 0 160 64",
       );
     case "Pistol":
-      return glyph(
-        <g fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinejoin="round">
-          <path d="M10 18h70l8 8H10z" />
-          <path d="M18 26v14h10l4-8" />
-          <path d="M62 18v-6h18" />
-        </g>,
-        "0 0 120 40",
-      );
+      return glyph(<path d="M8 18h54l10 10H18v16h12l6-8h8V28H8z" {...fill} />, "0 0 80 48");
     case "Armor":
       return glyph(
-        <g fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinejoin="round">
-          <path d="M18 22c8-12 38-12 46 0v42H18V22z" />
-          <path d="M18 22 8 16M64 22l10-6" />
-          <rect x="26" y="30" width="30" height="22" />
-        </g>,
+        <path d="M22 14c8-8 28-8 36 0l8-4v8c0 28-10 40-26 44C24 54 14 42 14 18v-8z" {...fill} />,
         "0 0 80 80",
       );
     case "Rig":
       return glyph(
-        <g fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinejoin="round">
-          <path d="M16 18h68v44H16z" />
-          <path d="M16 18 8 12M84 18l8-6" />
-          <rect x="22" y="28" width="14" height="20" />
-          <rect x="43" y="28" width="14" height="20" />
-          <rect x="64" y="28" width="14" height="20" />
-        </g>,
-        "0 0 100 80",
+        <path d="M16 16h48v10H16zm0 14h14v28H16zm17 0h14v28H33zm17 0h14v28H50z" {...fill} />,
+        "0 0 80 80",
       );
     case "Backpack":
       return glyph(
-        <g fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinejoin="round">
-          <path d="M28 18h44v70H28z" />
-          <path d="M28 18c0-10 44-10 44 0" />
-          <path d="M22 30h6M72 30h6" />
-          <path d="M36 40h28v18H36z" />
-        </g>,
-        "0 0 100 110",
+        <path d="M28 18c0-8 24-8 24 0v4h8v48H20V22h8zm-8 10h-6v16h6m40 0h6V28h-6" {...fill} />,
+        "0 0 80 80",
       );
     case "Headset":
       return glyph(
-        <g fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinejoin="round">
-          <path d="M16 40c0-18 12-30 24-30s24 12 24 30" />
-          <rect x="10" y="36" width="12" height="22" rx="3" />
-          <rect x="42" y="36" width="12" height="22" rx="3" />
-        </g>,
-        "0 0 64 64",
+        <path d="M16 40c0-16 10-28 24-28s24 12 24 28h-8c0-12-6-20-16-20S24 28 24 40H16zm-4-2h12v22H12zm40 0h12v22H52z" {...fill} />,
+        "0 0 80 80",
       );
     case "Ammo":
+      return glyph(<path d="M18 22h12v36H18zm16-8h12v44H34zm16 8h12v36H50z" {...fill} />, "0 0 80 80");
+    case "Headwear":
       return glyph(
-        <g fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinejoin="round">
-          <rect x="14" y="18" width="36" height="28" />
-          <path d="M20 18v-6h8v6M36 18v-6h8v6" />
-        </g>,
-        "0 0 64 64",
+        <path d="M14 38c2-18 14-28 26-28s24 10 26 28H14zm8 4h36v8l-6 8H28l-6-8z" {...fill} />,
+        "0 0 80 80",
+      );
+    case "FaceCover":
+      return glyph(
+        <path d="M20 22h40v10c0 22-8 34-20 38-12-4-20-16-20-38zm8 14h8v8h-8zm16 0h8v8h-8z" {...fill} />,
+        "0 0 80 80",
+      );
+    case "Armband":
+      return glyph(<path d="M18 18h44v12H18zm6 16h32v28H24z" {...fill} />, "0 0 80 80");
+    case "Eyewear":
+      return glyph(
+        <path d="M10 34h16l4 8h20l4-8h16v8H58l-6 12H28L22 42H10z" {...fill} />,
+        "0 0 80 80",
+      );
+    case "Sheath":
+      return glyph(<path d="M36 10l8 6-18 44H16L36 10zm-4 52h16v8H32z" {...fill} />, "0 0 80 80");
+    case "Pouch":
+      return glyph(<path d="M22 22h36v8l4 6v28H18V36l4-6zm8 0v-8h20v8" {...fill} />, "0 0 80 80");
+    case "Pockets":
+      return glyph(
+        <path d="M14 14h20v20H14zm32 0h20v20H46zM14 46h20v20H14zm32 0h20v20H46z" {...fill} />,
+        "0 0 80 80",
+      );
+    case "Special":
+      return glyph(
+        <text x="40" y="48" textAnchor="middle" fontSize="22" fontFamily="ui-monospace, monospace" {...fill}>
+          SPEC
+        </text>,
+        "0 0 80 80",
       );
     default:
       return null;
@@ -95,20 +100,27 @@ export function SlotGlyph({ slot }: { slot: KitSlot }) {
 
 export function PmcFigure() {
   return (
-    <svg viewBox="0 0 140 360" className="eft-pmc" aria-hidden>
-      <g fill="#3a3a32" stroke="#6e6e62" strokeWidth="1.4" strokeLinejoin="round">
-        <ellipse cx="70" cy="32" rx="18" ry="20" />
-        <path d="M52 52c10-4 26-4 36 0 18 10 28 32 30 58v22H22V110c2-26 12-48 30-58z" />
-        <path d="M22 132h22v18H22zM96 132h22v18H96z" />
-        <path d="M28 150h18v78c0 6-4 12-10 16l-8 6M112 150H94v78c0 6 4 12 10 16l8 6" />
-        <path d="M46 132h48v92c0 10-6 16-16 16H62c-10 0-16-6-16-16z" />
-        <path d="M52 240h14v88H52zM74 240h14v88H74z" />
+    <svg viewBox="0 0 200 520" className="eft-pmc" aria-hidden>
+      <defs>
+        <linearGradient id="pmc-fill" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0" stopColor="#8d8d82" />
+          <stop offset="1" stopColor="#5c5c54" />
+        </linearGradient>
+      </defs>
+      <g fill="url(#pmc-fill)" stroke="#2a2a24" strokeWidth="1.2" strokeLinejoin="round">
+        <ellipse cx="100" cy="42" rx="28" ry="32" />
+        <path d="M78 68c8-4 36-4 44 0 8 2 18 8 22 16v18H56V84c4-8 14-14 22-16z" />
+        <path d="M52 118c18-10 78-10 96 0 10 8 16 28 16 48v70H36v-70c0-20 6-40 16-48z" />
+        <path d="M36 228h28v86c-10 8-22 28-24 48l-8 36 18 8 14-40c4-14 8-28 12-36V228zm100 0h28v94c4 8 8 22 12 36l14 40 18-8-8-36c-2-20-14-40-24-48V228z" />
+        <path d="M64 236h72v70c0 16-12 28-24 32H88c-12-4-24-16-24-32z" />
+        <path d="M72 338h24v150H72zm32 0h24v150H104z" />
+        <path d="M68 478h32v28H68zm32 0h32v28h-32z" />
       </g>
-      <g fill="none" stroke="#8a8474" strokeWidth="1.1" opacity="0.55">
-        <path d="M56 24h28" />
-        <path d="M44 86h52" />
-        <path d="M54 128h32" />
-        <path d="M58 176h24" />
+      <g fill="none" stroke="#cfcab8" strokeWidth="1.1" opacity="0.35">
+        <path d="M84 28h32" />
+        <path d="M70 108h60" />
+        <path d="M78 168h44" />
+        <path d="M82 248h36" />
       </g>
     </svg>
   );

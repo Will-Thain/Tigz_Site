@@ -11,6 +11,102 @@ export const GEAR_COLUMN_SLOTS: KitSlot[] = ["Headset", "Armor", "Rig", "Backpac
 
 export const BODY_SLOTS: KitSlot[] = [...WEAPON_COLUMN_SLOTS, ...GEAR_COLUMN_SLOTS];
 
+/** Totov /build plate is 400×808. Positions are percent of that plate. */
+export const SILHOUETTE_ASPECT = "400 / 808";
+
+export type SilhouetteGlyph =
+  | KitSlot
+  | "Headwear"
+  | "FaceCover"
+  | "Armband"
+  | "Eyewear"
+  | "Sheath"
+  | "Pouch"
+  | "Pockets"
+  | "Special";
+
+export type SilhouetteZone = {
+  id: string;
+  label: string;
+  glyph: SilhouetteGlyph;
+  slot?: KitSlot;
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+  labelTop: number;
+  labelWidth: number;
+  showLabel: boolean;
+};
+
+const TOTOV_W = 28.5;
+const TOTOV_H = (28.5 * 808) / 400;
+const pctW = (rem: number) => (rem / TOTOV_W) * 100;
+const pctH = (rem: number) => (rem / TOTOV_H) * 100;
+
+const COL = { 1: 2.25, 2: 11.1, 3: 20 } as const;
+const SMALL_COL = { 1: 2.25, 2: 8.49, 3: 14.6, 4: 20.7 } as const;
+const ITEM_TOP = { 1: 2.4, 2: 10.4, 3: 18.45, 4: 26.65, 5: 34.85, 6: 42.8, 7: 50 } as const;
+const TEXT_TOP = { 1: 1.35, 2: 9.3, 3: 17.4, 4: 25.6, 5: 33.75, 6: 41.65, 7: 48.95 } as const;
+const ITEM = 6.1;
+const ITEM_WIDE = 15;
+const SMALL = 5.35;
+
+function zone(
+  id: string,
+  label: string,
+  glyph: SilhouetteGlyph,
+  row: keyof typeof ITEM_TOP,
+  col: 1 | 2 | 3,
+  options: { slot?: KitSlot; wide?: boolean; small?: boolean; smallCol?: 1 | 2 | 3 | 4; showLabel?: boolean } = {},
+): SilhouetteZone {
+  const small = options.small === true;
+  const leftRem = small ? SMALL_COL[options.smallCol ?? 1] : COL[col];
+  const widthRem = small ? SMALL : options.wide ? ITEM_WIDE : ITEM;
+  const heightRem = small ? SMALL : ITEM;
+  return {
+    id,
+    label,
+    glyph,
+    slot: options.slot,
+    left: pctW(leftRem),
+    top: pctH(ITEM_TOP[row]),
+    width: pctW(widthRem),
+    height: pctH(heightRem),
+    labelTop: pctH(TEXT_TOP[row]),
+    labelWidth: pctW(widthRem),
+    showLabel: options.showLabel ?? true,
+  };
+}
+
+/** Character-equipment zones matching Totov Builder /build. Ghost cells are visual-only. */
+export const SILHOUETTE_ZONES: SilhouetteZone[] = [
+  zone("earpiece", "Earpiece", "Headset", 1, 1, { slot: "Headset" }),
+  zone("headwear", "Headwear", "Headwear", 1, 2),
+  zone("faceCover", "Face cover", "FaceCover", 1, 3),
+  zone("armband", "Armband", "Armband", 2, 1),
+  zone("bodyArmor", "Body armor", "Armor", 2, 2, { slot: "Armor" }),
+  zone("eyewear", "Eyewear", "Eyewear", 2, 3),
+  zone("onSling", "On sling", "Primary", 3, 1, { slot: "Primary", wide: true }),
+  zone("holster", "Holster", "Pistol", 3, 3, { slot: "Pistol" }),
+  zone("onBack", "On back", "Secondary", 4, 1, { slot: "Secondary", wide: true }),
+  zone("scabbard", "Sheath", "Sheath", 4, 3),
+  zone("tacticalRig", "Tactical rig", "Rig", 5, 1, { slot: "Rig" }),
+  zone("backpack", "Backpack", "Backpack", 5, 2, { slot: "Backpack" }),
+  zone("pouch", "Pouch", "Pouch", 5, 3),
+  zone("pockets", "Pockets", "Pockets", 6, 1, { small: true, smallCol: 1 }),
+  zone("pockets2", "", "Pockets", 6, 1, { small: true, smallCol: 2, showLabel: false }),
+  zone("pockets3", "", "Pockets", 6, 1, { small: true, smallCol: 3, showLabel: false }),
+  zone("pockets4", "", "Pockets", 6, 1, { small: true, smallCol: 4, showLabel: false }),
+  zone("special", "Spec", "Special", 7, 1, { small: true, smallCol: 1 }),
+  zone("special2", "", "Special", 7, 1, { small: true, smallCol: 2, showLabel: false }),
+  zone("special3", "", "Special", 7, 1, { small: true, smallCol: 3, showLabel: false }),
+];
+
+export function kitSlotForZone(id: string): KitSlot | undefined {
+  return SILHOUETTE_ZONES.find((row) => row.id === id)?.slot;
+}
+
 const TILE_COLORS: Record<string, string> = {
   black: "#161612",
   blue: "#152433",

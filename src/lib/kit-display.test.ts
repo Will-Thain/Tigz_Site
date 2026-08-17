@@ -10,11 +10,13 @@ import {
   humanSlotLabel,
   isPlaceholderCatalogName,
   isUnpublishedSlot,
+  kitSlotForZone,
   kitSlotsInOrder,
   overviewWeapon,
   pickKitImage,
   resolveKitItemName,
   resolveKitShortName,
+  SILHOUETTE_ZONES,
   slotCellSize,
   SLOT_UI,
   WEAPON_COLUMN_SLOTS,
@@ -57,11 +59,40 @@ describe("kit display", () => {
     expect(SLOT_UI.Backpack.rows).toBeGreaterThan(SLOT_UI.Headset.rows);
   });
 
-  it("keeps ammo off the PMC body and groups Totov columns", () => {
+  it("keeps ammo off the PMC body and maps kit slots onto the Totov silhouette", () => {
     expect(BODY_SLOTS).not.toContain("Ammo");
     expect(BODY_SLOTS).toHaveLength(7);
     expect(WEAPON_COLUMN_SLOTS).toEqual(["Primary", "Secondary", "Pistol"]);
     expect(GEAR_COLUMN_SLOTS).toEqual(["Headset", "Armor", "Rig", "Backpack"]);
+    expect(SILHOUETTE_ZONES.map((zone) => zone.id)).toEqual([
+      "earpiece",
+      "headwear",
+      "faceCover",
+      "armband",
+      "bodyArmor",
+      "eyewear",
+      "onSling",
+      "holster",
+      "onBack",
+      "scabbard",
+      "tacticalRig",
+      "backpack",
+      "pouch",
+      "pockets",
+      "pockets2",
+      "pockets3",
+      "pockets4",
+      "special",
+      "special2",
+      "special3",
+    ]);
+    expect(kitSlotForZone("onSling")).toBe("Primary");
+    expect(kitSlotForZone("earpiece")).toBe("Headset");
+    expect(kitSlotForZone("headwear")).toBeUndefined();
+    const sling = SILHOUETTE_ZONES.find((zone) => zone.id === "onSling")!;
+    const holster = SILHOUETTE_ZONES.find((zone) => zone.id === "holster")!;
+    expect(sling.width).toBeGreaterThan(holster.width * 1.8);
+    expect(sling.top).toBeLessThan(SILHOUETTE_ZONES.find((zone) => zone.id === "onBack")!.top);
   });
 
   it("treats empty slots and Unpublished labels as unpublished", () => {

@@ -1,12 +1,20 @@
 import { describe, expect, it } from "vitest";
-import { BODY_SLOTS, GEAR_COLUMN_SLOTS, SLOT_UI, WEAPON_COLUMN_SLOTS } from "@/lib/kit-display";
+import { BODY_SLOTS, GEAR_COLUMN_SLOTS, kitSlotForZone, SILHOUETTE_ZONES, SLOT_UI, WEAPON_COLUMN_SLOTS } from "@/lib/kit-display";
 
 describe("KitSlots Tarkov-style layout", () => {
-  describe("Totov Builder silhouette columns", () => {
-    it("places weapons left, gear right, and keeps ammo off the body", () => {
+  describe("Totov Builder silhouette plate", () => {
+    it("places kit slots on the character equipment zones and keeps ammo off the body", () => {
       expect(WEAPON_COLUMN_SLOTS).toEqual(["Primary", "Secondary", "Pistol"]);
       expect(GEAR_COLUMN_SLOTS).toEqual(["Headset", "Armor", "Rig", "Backpack"]);
       expect(BODY_SLOTS).not.toContain("Ammo");
+      expect(kitSlotForZone("onSling")).toBe("Primary");
+      expect(kitSlotForZone("onBack")).toBe("Secondary");
+      expect(kitSlotForZone("holster")).toBe("Pistol");
+      expect(kitSlotForZone("bodyArmor")).toBe("Armor");
+      expect(kitSlotForZone("tacticalRig")).toBe("Rig");
+      expect(kitSlotForZone("backpack")).toBe("Backpack");
+      expect(kitSlotForZone("earpiece")).toBe("Headset");
+      expect(SILHOUETTE_ZONES.some((zone) => zone.slot === "Ammo")).toBe(false);
     });
   });
 
