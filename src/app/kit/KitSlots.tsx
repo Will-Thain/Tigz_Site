@@ -105,13 +105,7 @@ function WeaponOverview({
   const weapon = overviewWeapon(items, catalog);
   const stats = weaponStats(weapon);
   const parts = componentOverview(weapon, catalog);
-  if (stats.length === 0 && parts.length === 0) {
-    return (
-      <div className="eft-overview eft-overview-empty">
-        <p>Select a published weapon to see stats and components.</p>
-      </div>
-    );
-  }
+  if (stats.length === 0 && parts.length === 0) return null;
 
   return (
     <div className="eft-overview">
@@ -161,6 +155,9 @@ export function KitInspect({
   const bySlot = new Map(kitSlotsInOrder(items).map((item) => [item.slot, item]));
   const unpublished = BODY_SLOTS.every((slot) => isUnpublishedSlot(bySlot.get(slot)));
   const ammo = ammoCaption(items, catalog);
+  const weapon = overviewWeapon(items, catalog);
+  const hasOverview =
+    !compact && (weaponStats(weapon).length > 0 || componentOverview(weapon, catalog).length > 0);
 
   return (
     <section className={`eft-equipment${compact ? " eft-equipment-compact" : ""}`}>
@@ -171,7 +168,7 @@ export function KitInspect({
         </div>
       )}
 
-      <div className="eft-build">
+      <div className={`eft-build${hasOverview ? "" : " eft-build-solo"}`}>
         <div className="eft-silhouette" style={{ aspectRatio: SILHOUETTE_ASPECT }}>
           <PmcFigure />
           {SILHOUETTE_ZONES.map((zone) => (
@@ -184,7 +181,7 @@ export function KitInspect({
             />
           ))}
         </div>
-        {compact ? null : <WeaponOverview items={items} catalog={catalog} />}
+        {hasOverview ? <WeaponOverview items={items} catalog={catalog} /> : null}
       </div>
     </section>
   );

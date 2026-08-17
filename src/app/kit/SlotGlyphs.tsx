@@ -15,80 +15,83 @@ export function SlotGlyph({ slot }: { slot: SilhouetteGlyph }) {
   switch (slot) {
     case "Primary":
       return glyph(
-        <>
-          <text x="6" y="22" fontSize="18" fontFamily="ui-monospace, monospace" {...fill}>
-            1
-          </text>
+        <g transform="translate(80 32) rotate(-32)">
           <path
-            d="M18 52l10-8h22l6-8h28l8 8h36l14 8v6H28zM40 44v-8h16v8M92 36h18v8"
+            d="M-70 4h38l8-10h22l6 10h36l12 6v8h-18l-8 10H-28v-8h-14zM-20-12h22v10h-22z"
             {...fill}
           />
-        </>,
+        </g>,
         "0 0 160 64",
       );
     case "Secondary":
       return glyph(
-        <>
-          <text x="6" y="22" fontSize="18" fontFamily="ui-monospace, monospace" {...fill}>
-            2
-          </text>
-          <path d="M22 50l8-10h18l6-8h24l8 8h32l12 10v6H30z" {...fill} />
-        </>,
+        <g transform="translate(80 32) rotate(-32)">
+          <path
+            d="M-66 6h34l6-8h20l6 8h32l14 6v8H-20l-8 8h-18v-6h-12z"
+            {...fill}
+          />
+        </g>,
         "0 0 160 64",
       );
     case "Pistol":
-      return glyph(<path d="M8 18h54l10 10H18v16h12l6-8h8V28H8z" {...fill} />, "0 0 80 48");
+      return glyph(
+        <path d="M8 20h52l4-4h10v6l-8 4v6H54l-4 16H38l-4-16H20V32H8z" {...fill} />,
+        "0 0 80 48",
+      );
     case "Armor":
       return glyph(
-        <path d="M22 14c8-8 28-8 36 0l8-4v8c0 28-10 40-26 44C24 54 14 42 14 18v-8z" {...fill} />,
+        <path d="M18 16c10-10 34-10 44 0l8-6 2 10c0 30-12 44-32 48C20 64 8 50 8 20l2-10z" {...fill} />,
         "0 0 80 80",
       );
     case "Rig":
       return glyph(
-        <path d="M16 16h48v10H16zm0 14h14v28H16zm17 0h14v28H33zm17 0h14v28H50z" {...fill} />,
+        <path
+          d="M14 12h52v8H14zm0 12h16v36H14zm18 0h16v36H32zm18 0h16v36H50zM18 20l-8-8M62 20l8-8"
+          {...fill}
+        />,
         "0 0 80 80",
       );
     case "Backpack":
       return glyph(
-        <path d="M28 18c0-8 24-8 24 0v4h8v48H20V22h8zm-8 10h-6v16h6m40 0h6V28h-6" {...fill} />,
+        <path d="M26 16c0-10 28-10 28 0v2h10v52H16V18h10zm-10 14h-8v22h8m40 0h8V30h-8M30 28h20v16H30z" {...fill} />,
         "0 0 80 80",
       );
     case "Headset":
       return glyph(
-        <path d="M16 40c0-16 10-28 24-28s24 12 24 28h-8c0-12-6-20-16-20S24 28 24 40H16zm-4-2h12v22H12zm40 0h12v22H52z" {...fill} />,
+        <path d="M14 42c0-18 12-30 26-30s26 12 26 30h-8c0-13-8-22-18-22S22 29 22 42H14zm-6-2h14v24H8zm50 0h14v24H64z" {...fill} />,
         "0 0 80 80",
       );
     case "Ammo":
       return glyph(<path d="M18 22h12v36H18zm16-8h12v44H34zm16 8h12v36H50z" {...fill} />, "0 0 80 80");
     case "Headwear":
       return glyph(
-        <path d="M14 38c2-18 14-28 26-28s24 10 26 28H14zm8 4h36v8l-6 8H28l-6-8z" {...fill} />,
+        <path d="M12 40c2-20 16-32 28-32s26 12 28 32H12zm10 4h36l-4 12H26z" {...fill} />,
         "0 0 80 80",
       );
     case "FaceCover":
       return glyph(
-        <path d="M20 22h40v10c0 22-8 34-20 38-12-4-20-16-20-38zm8 14h8v8h-8zm16 0h8v8h-8z" {...fill} />,
+        <path d="M18 20h44v12c0 24-10 36-22 40-12-4-22-16-22-40zm10 14h8v10h-8zm16 0h8v10h-8z" {...fill} />,
         "0 0 80 80",
       );
     case "Armband":
-      return glyph(<path d="M18 18h44v12H18zm6 16h32v28H24z" {...fill} />, "0 0 80 80");
+      return glyph(<path d="M16 18h48v14H16zm8 18h32v28H24z" {...fill} />, "0 0 80 80");
     case "Eyewear":
       return glyph(
-        <path d="M10 34h16l4 8h20l4-8h16v8H58l-6 12H28L22 42H10z" {...fill} />,
+        <path d="M8 32h18l6 12h16l6-12h18v8H64L56 56H24L16 40H8z" {...fill} />,
         "0 0 80 80",
       );
     case "Sheath":
-      return glyph(<path d="M36 10l8 6-18 44H16L36 10zm-4 52h16v8H32z" {...fill} />, "0 0 80 80");
+      return glyph(<path d="M38 8l10 8-20 48H14L38 8zm-6 56h22v10H32z" {...fill} />, "0 0 80 80");
     case "Pouch":
-      return glyph(<path d="M22 22h36v8l4 6v28H18V36l4-6zm8 0v-8h20v8" {...fill} />, "0 0 80 80");
+      return glyph(<path d="M20 24h40v6l6 8v28H14V38l6-8zm10-10h20v10H30z" {...fill} />, "0 0 80 80");
     case "Pockets":
       return glyph(
-        <path d="M14 14h20v20H14zm32 0h20v20H46zM14 46h20v20H14zm32 0h20v20H46z" {...fill} />,
+        <path d="M12 12h24v24H12zm32 0h24v24H44zM12 44h24v24H12zm32 0h24v24H44z" fill="none" stroke="currentColor" strokeWidth="4" />,
         "0 0 80 80",
       );
     case "Special":
       return glyph(
-        <text x="40" y="48" textAnchor="middle" fontSize="22" fontFamily="ui-monospace, monospace" {...fill}>
+        <text x="40" y="48" textAnchor="middle" fontSize="20" fontFamily="ui-monospace, monospace" {...fill}>
           SPEC
         </text>,
         "0 0 80 80",
@@ -100,12 +103,15 @@ export function SlotGlyph({ slot }: { slot: SilhouetteGlyph }) {
 
 export function PmcFigure() {
   return (
-    <svg viewBox="0 0 220 560" className="eft-pmc" aria-hidden>
-      <g fill="#9a9a90" stroke="none">
-        <ellipse cx="110" cy="48" rx="32" ry="36" />
-        <path d="M78 78c10-8 54-8 64 0 16 10 28 28 32 48 2 12 2 22-6 28H52c-8-6-8-16-6-28 4-20 16-38 32-48z" />
-        <path d="M48 154c22-16 102-16 124 0 14 10 22 38 22 64v92H26v-92c0-26 8-54 22-64z" />
-        <path d="M26 300c8 8 18 14 28 16v88c-16 12-30 40-34 70l-8 42 22 6 16-48c6-18 12-34 18-44V316h8v196h36V316h8v196h36V316h8c6 10 12 26 18 44l16 48 22-6-8-42c-4-30-18-58-34-70v-88c10-2 20-8 28-16H26z" />
+    <svg viewBox="0 0 200 540" className="eft-pmc" aria-hidden>
+      <g fill="#8a8a82">
+        <ellipse cx="100" cy="44" rx="26" ry="30" />
+        <path d="M82 72c12-6 24-6 36 0 14 8 24 22 28 40v22H54V112c4-18 14-32 28-40z" />
+        <path d="M46 148c20-14 88-14 108 0 12 8 20 32 20 56v78H26v-78c0-24 8-48 20-56z" />
+        <path d="M26 276h24v92c-12 10-22 32-26 58l-6 36 18 6 12-40c4-16 10-30 14-40V276zm124 0h24v92c4 10 10 24 14 40l12 40 18-6-6-36c-4-26-14-48-26-58V276z" />
+        <path d="M50 276h100v64c0 18-14 30-28 34H78c-14-4-28-16-28-34z" />
+        <path d="M62 340h28v168H62zm48 0h28v168h-28z" />
+        <path d="M58 498h36v28H58zm48 0h36v28h-36z" />
       </g>
     </svg>
   );

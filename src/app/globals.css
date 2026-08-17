@@ -70,7 +70,8 @@ body {
   }
 }
 
-.eft-equipment-compact .eft-build {
+.eft-equipment-compact .eft-build,
+.eft-build-solo {
   grid-template-columns: 1fr;
   padding: 0.55rem;
   justify-items: center;
@@ -79,25 +80,22 @@ body {
 .eft-silhouette {
   position: relative;
   width: min(100%, 400px);
-  background:
-    radial-gradient(ellipse at 50% 30%, #161614 0%, #070707 72%);
+  background: #080808;
   border: 1px solid #3a3a32;
   overflow: hidden;
 }
 
-.eft-equipment-compact .eft-silhouette {
-  width: min(100%, 280px);
-}
-
 .eft-pmc {
   position: absolute;
-  top: 4%;
+  top: 3%;
   left: 50%;
   z-index: 0;
-  height: 92%;
+  height: 90%;
   width: auto;
+  max-width: 42%;
   transform: translateX(-50%);
-  filter: grayscale(1) contrast(0.9) brightness(0.72);
+  opacity: 0.34;
+  filter: grayscale(1);
   pointer-events: none;
 }
 
@@ -105,15 +103,15 @@ body {
   position: absolute;
   z-index: 2;
   margin: 0;
-  padding: 0 2px;
+  padding: 0 1px;
   overflow: hidden;
-  text-overflow: ellipsis;
+  text-overflow: clip;
   white-space: nowrap;
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 9px;
-  letter-spacing: 0.12em;
+  font-size: 8px;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #b7b09c;
+  color: #c4bda8;
   pointer-events: none;
 }
 
@@ -131,11 +129,11 @@ body {
 }
 
 .eft-slot-empty {
-  background-color: rgba(14, 14, 12, 0.94);
+  background-color: rgba(12, 12, 10, 0.92);
   background-image: repeating-linear-gradient(
     -45deg,
-    rgba(255, 255, 255, 0.045) 0 1px,
-    transparent 1px 7px
+    rgba(255, 255, 255, 0.07) 0 1px,
+    transparent 1px 6px
   );
 }
 
@@ -162,9 +160,9 @@ body {
 }
 
 .eft-glyph {
-  width: 52%;
-  height: 52%;
-  color: rgba(236, 232, 220, 0.72);
+  width: 58%;
+  height: 58%;
+  color: rgba(214, 210, 196, 0.78);
 }
 
 .eft-slot[data-zone="onSling"] .eft-glyph,

@@ -89,10 +89,14 @@ describe("kit display", () => {
     expect(kitSlotForZone("onSling")).toBe("Primary");
     expect(kitSlotForZone("earpiece")).toBe("Headset");
     expect(kitSlotForZone("headwear")).toBeUndefined();
+    const armor = SILHOUETTE_ZONES.find((zone) => zone.id === "bodyArmor")!;
+    const headwear = SILHOUETTE_ZONES.find((zone) => zone.id === "headwear")!;
     const sling = SILHOUETTE_ZONES.find((zone) => zone.id === "onSling")!;
     const holster = SILHOUETTE_ZONES.find((zone) => zone.id === "holster")!;
+    expect(armor.top).toBeGreaterThan(headwear.top);
     expect(sling.width).toBeGreaterThan(holster.width * 1.8);
     expect(sling.top).toBeLessThan(SILHOUETTE_ZONES.find((zone) => zone.id === "onBack")!.top);
+    expect(SILHOUETTE_ZONES.find((zone) => zone.id === "special")?.label).toBe("Special");
   });
 
   it("treats empty slots and Unpublished labels as unpublished", () => {

@@ -98,7 +98,7 @@ export const SILHOUETTE_ZONES: SilhouetteZone[] = [
   zone("pockets2", "", "Pockets", 6, 1, { small: true, smallCol: 2, showLabel: false }),
   zone("pockets3", "", "Pockets", 6, 1, { small: true, smallCol: 3, showLabel: false }),
   zone("pockets4", "", "Pockets", 6, 1, { small: true, smallCol: 4, showLabel: false }),
-  zone("special", "Spec", "Special", 7, 1, { small: true, smallCol: 1 }),
+  zone("special", "Special", "Special", 7, 1, { small: true, smallCol: 1 }),
   zone("special2", "", "Special", 7, 1, { small: true, smallCol: 2, showLabel: false }),
   zone("special3", "", "Special", 7, 1, { small: true, smallCol: 3, showLabel: false }),
 ];
