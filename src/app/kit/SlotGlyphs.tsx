@@ -100,27 +100,12 @@ export function SlotGlyph({ slot }: { slot: SilhouetteGlyph }) {
 
 export function PmcFigure() {
   return (
-    <svg viewBox="0 0 200 520" className="eft-pmc" aria-hidden>
-      <defs>
-        <linearGradient id="pmc-fill" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0" stopColor="#8d8d82" />
-          <stop offset="1" stopColor="#5c5c54" />
-        </linearGradient>
-      </defs>
-      <g fill="url(#pmc-fill)" stroke="#2a2a24" strokeWidth="1.2" strokeLinejoin="round">
-        <ellipse cx="100" cy="42" rx="28" ry="32" />
-        <path d="M78 68c8-4 36-4 44 0 8 2 18 8 22 16v18H56V84c4-8 14-14 22-16z" />
-        <path d="M52 118c18-10 78-10 96 0 10 8 16 28 16 48v70H36v-70c0-20 6-40 16-48z" />
-        <path d="M36 228h28v86c-10 8-22 28-24 48l-8 36 18 8 14-40c4-14 8-28 12-36V228zm100 0h28v94c4 8 8 22 12 36l14 40 18-8-8-36c-2-20-14-40-24-48V228z" />
-        <path d="M64 236h72v70c0 16-12 28-24 32H88c-12-4-24-16-24-32z" />
-        <path d="M72 338h24v150H72zm32 0h24v150H104z" />
-        <path d="M68 478h32v28H68zm32 0h32v28h-32z" />
-      </g>
-      <g fill="none" stroke="#cfcab8" strokeWidth="1.1" opacity="0.35">
-        <path d="M84 28h32" />
-        <path d="M70 108h60" />
-        <path d="M78 168h44" />
-        <path d="M82 248h36" />
+    <svg viewBox="0 0 220 560" className="eft-pmc" aria-hidden>
+      <g fill="#9a9a90" stroke="none">
+        <ellipse cx="110" cy="48" rx="32" ry="36" />
+        <path d="M78 78c10-8 54-8 64 0 16 10 28 28 32 48 2 12 2 22-6 28H52c-8-6-8-16-6-28 4-20 16-38 32-48z" />
+        <path d="M48 154c22-16 102-16 124 0 14 10 22 38 22 64v92H26v-92c0-26 8-54 22-64z" />
+        <path d="M26 300c8 8 18 14 28 16v88c-16 12-30 40-34 70l-8 42 22 6 16-48c6-18 12-34 18-44V316h8v196h36V316h8v196h36V316h8c6 10 12 26 18 44l16 48 22-6-8-42c-4-30-18-58-34-70v-88c10-2 20-8 28-16H26z" />
       </g>
     </svg>
   );

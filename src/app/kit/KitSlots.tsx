@@ -44,7 +44,6 @@ function SilhouetteSlot({
 }) {
   const shown = item ? shownItem(item, catalog) : undefined;
   const filled = Boolean(shown && !shown.unpublished && shown.image);
-  const unpublishedKit = Boolean(zone.slot && (shown?.unpublished ?? true));
   const style = {
     left: `${zone.left}%`,
     top: `${zone.top}%`,
@@ -80,7 +79,6 @@ function SilhouetteSlot({
             <SlotGlyph slot={zone.glyph} />
           )}
         </div>
-        {unpublishedKit ? <p className="eft-slot-tag">Unpublished</p> : null}
         {filled ? (
           <div className="eft-slot-caption">
             <p>{shown!.shortName ?? shown!.name}</p>

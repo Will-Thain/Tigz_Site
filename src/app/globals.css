@@ -162,9 +162,9 @@ body {
 }
 
 .eft-glyph {
-  width: 42%;
-  height: 42%;
-  color: rgba(232, 228, 214, 0.55);
+  width: 52%;
+  height: 52%;
+  color: rgba(236, 232, 220, 0.72);
 }
 
 .eft-slot[data-zone="onSling"] .eft-glyph,
