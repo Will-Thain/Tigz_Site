@@ -1,27 +1,24 @@
-import type { CSSProperties, ReactNode } from "react";
-import type { Kit, KitItem, KitSlot } from "@/data/kits";
+import type { CSSProperties } from "react";
+import type { Kit, KitItem } from "@/data/kits";
+import {
+  assembledGunStats,
+  buildGunBoard,
+  cellBadges,
+  type GridCell,
+  type StatBar,
+} from "@/lib/gun-grid";
 import {
   ammoCaption,
   BODY_SLOTS,
-  formatCaliber,
-  formatErgoModifier,
-  formatFireRate,
-  formatWeightKg,
-  installedMods,
   isUnpublishedSlot,
   itemForSlot,
   kitSlotsInOrder,
   overviewWeapon,
-  pickItemIcon,
   pickKitImage,
   resolveKitItemName,
   resolveKitShortName,
   SILHOUETTE_ART,
   SILHOUETTE_ZONES,
-  SLOT_UI,
-  treeWeight,
-  WEAPON_COLUMN_SLOTS,
-  type InstalledMod,
   type SilhouetteZone,
 } from "@/lib/kit-display";
 import type { TarkovItemLite } from "@/lib/tarkov";
@@ -97,191 +94,73 @@ function SilhouetteSlot({
   );
 }
 
-function StatIcon({ children }: { children: ReactNode }) {
+function GhostGlyph({ family }: { family: GridCell["family"] }) {
   return (
-    <svg className="eft-stat-icon" viewBox="0 0 16 16" aria-hidden="true">
-      {children}
+    <svg className="db4-ghost-icon" viewBox="0 0 48 48" aria-hidden="true">
+      {family === "scope" ? (
+        <circle cx="24" cy="24" r="10" fill="none" stroke="currentColor" strokeWidth="1.4" />
+      ) : family === "mount" ? (
+        <rect x="10" y="20" width="28" height="8" rx="1" fill="none" stroke="currentColor" strokeWidth="1.4" />
+      ) : family === "tactical" ? (
+        <path d="M12 30h24M18 18h12v12H18z" fill="none" stroke="currentColor" strokeWidth="1.4" />
+      ) : family === "charge" ? (
+        <path d="M10 24h20l6-8" fill="none" stroke="currentColor" strokeWidth="1.4" />
+      ) : (
+        <rect x="12" y="12" width="24" height="24" rx="2" fill="none" stroke="currentColor" strokeWidth="1.4" />
+      )}
     </svg>
   );
 }
 
-function ItemInspect({
-  item,
-  catalog,
-  main = false,
-  ancestors = [],
-  mods: givenMods,
-}: {
-  item: TarkovItemLite;
-  catalog: Map<string, TarkovItemLite>;
-  main?: boolean;
-  ancestors?: string[];
-  mods?: InstalledMod[];
-}) {
-  if (ancestors.includes(item.id)) return null;
-  const name = resolveKitItemName({ slot: "Primary", itemId: item.id, label: item.shortName || item.id }, item);
-  const image = pickItemIcon(item);
-  const gun = item.types?.includes("gun") === true;
-  const mods = givenMods ?? installedMods(item, catalog);
-  const caliber = formatCaliber(item.caliber);
-  const ergoMod = !gun && item.ergonomics != null && item.ergonomics !== 0;
-  const weight = main ? treeWeight(item, catalog) : item.weight;
-  const withMods = main && (item.containsIds?.length ?? 0) > 0;
-
+function StatBarRow({ bar }: { bar: StatBar }) {
+  const start = Math.min(bar.pct, bar.basePct ?? bar.pct);
+  const span = Math.abs((bar.basePct ?? bar.pct) - bar.pct);
   return (
-    <div className="eft-item">
-      <div className={`eft-item-header-container${main ? " eft-item-main" : " eft-item-padded"}`}>
-        <div>
-          <div className="eft-item-header">
-            <div>
-              {image ? (
-                <div className="eft-item-icon">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={image} alt="" />
-                </div>
-              ) : null}
-              <div className="eft-item-title">{name}</div>
-            </div>
-          </div>
-          <div className="eft-item-stats">
-            {weight != null && weight > 0 ? (
-              <div className="eft-item-weight">
-                <span className={`eft-card-value${withMods ? " eft-card-with-mods" : ""}`}>
-                  <StatIcon>
-                    <path
-                      fill="currentColor"
-                      d="M8 1.5A2.5 2.5 0 0 0 5.5 4h-.75A1.75 1.75 0 0 0 3 5.75v.5h10v-.5A1.75 1.75 0 0 0 11.25 4H10.5A2.5 2.5 0 0 0 8 1.5Zm0 1A1.5 1.5 0 0 1 9.5 4h-3A1.5 1.5 0 0 1 8 2.5ZM3.75 7.5A.75.75 0 0 0 3 8.25V13a1.5 1.5 0 0 0 1.5 1.5h7A1.5 1.5 0 0 0 13 13V8.25a.75.75 0 0 0-.75-.75Z"
-                    />
-                  </StatIcon>
-                  {formatWeightKg(weight)}
-                </span>
-              </div>
-            ) : (
-              <div />
-            )}
-            <div className="eft-item-specialized">
-              {gun ? (
-                <>
-                  <div className="eft-card-line eft-card-line4">
-                    {item.recoilVertical != null ? (
-                      <span className="eft-card-value eft-card-with-mods">
-                        <StatIcon>
-                          <path fill="currentColor" d="M8 1 4.5 6h2.25v4H4.5L8 15l3.5-5H9.25V6H11.5Z" />
-                        </StatIcon>
-                        {item.recoilVertical}
-                      </span>
-                    ) : null}
-                    {item.recoilHorizontal != null ? (
-                      <span className="eft-card-value eft-card-with-mods">
-                        <StatIcon>
-                          <path fill="currentColor" d="M1 8 6 4.5v2.25h4V4.5L15 8l-5 3.5V9.25H6v2.25Z" />
-                        </StatIcon>
-                        {item.recoilHorizontal}
-                      </span>
-                    ) : null}
-                    {item.ergonomics != null ? (
-                      <span className="eft-card-value eft-card-with-mods">
-                        <StatIcon>
-                          <path
-                            fill="currentColor"
-                            d="M7.2 2.2c.9-.9 2.4-.9 3.3 0l.3.3c.4.4.5 1 .3 1.5L10 7.2 13 10v3H9.5l-2-2H6.2L4 13.2 2.6 11.8 5.8 8.6 5 6.2c-.3-.8 0-1.7.7-2.2Z"
-                          />
-                        </StatIcon>
-                        {item.ergonomics}
-                      </span>
-                    ) : null}
-                  </div>
-                  <div className="eft-card-line eft-card-line4">
-                    {item.fireRate != null ? (
-                      <span className="eft-card-value eft-card-with-mods">
-                        <StatIcon>
-                          <path fill="currentColor" d="M8.8 1 4 8.2h3.1L6.4 15 12 7.4H8.7Z" />
-                        </StatIcon>
-                        {formatFireRate(item.fireRate)}
-                      </span>
-                    ) : null}
-                    {caliber ? (
-                      <span className="eft-card-value eft-card-with-mods eft-card-caliber">
-                        <StatIcon>
-                          <circle cx="8" cy="8" r="5.2" fill="none" stroke="currentColor" strokeWidth="1.4" />
-                          <circle cx="8" cy="8" r="1.4" fill="currentColor" />
-                        </StatIcon>
-                        {caliber}
-                      </span>
-                    ) : null}
-                  </div>
-                </>
-              ) : ergoMod ? (
-                <div className="eft-card-line eft-card-line4">
-                  <span className="eft-card-value">
-                    <StatIcon>
-                      <path
-                        fill="currentColor"
-                        d="M7.2 2.2c.9-.9 2.4-.9 3.3 0l.3.3c.4.4.5 1 .3 1.5L10 7.2 13 10v3H9.5l-2-2H6.2L4 13.2 2.6 11.8 5.8 8.6 5 6.2c-.3-.8 0-1.7.7-2.2Z"
-                      />
-                    </StatIcon>
-                    {formatErgoModifier(item.ergonomics!)}
-                  </span>
-                </div>
-              ) : null}
-            </div>
-          </div>
-        </div>
+    <div className={`db4-bar-row db4-bar-${bar.tone}`} data-stat={bar.id}>
+      <span className="db4-bar-label">{bar.label}</span>
+      <div className="db4-bar-track">
+        {bar.tone === "recoil" ? (
+          <span className="db4-bar-range" style={{ left: `${start}%`, width: `${Math.max(span, 3)}%` }} />
+        ) : bar.tone === "accuracy" ? null : (
+          <span className="db4-bar-fill" style={{ width: `${bar.pct}%` }} />
+        )}
+        <span className="db4-bar-mark" style={{ left: `${bar.pct}%` }} />
       </div>
-      {mods.length > 0 ? (
-        <div className="eft-item-mods">
-          <div className="eft-mods-tab">
-            <span className="eft-mods-button">
-              <StatIcon>
-                <path
-                  fill="currentColor"
-                  d="M6.2 1.6 8 3.4l1.8-1.8 1.6 1.6L9.6 5l1.2 1.2 2.6-1.6 1.6 1.6-1.6 2.6 2.2.6v2.2l-2.2.6 1.6 2.6-1.6 1.6-2.6-1.6-.6 2.2H8.2L7.6 14l-2.6 1.6-1.6-1.6 1.6-2.6L2.8 11 2.2 8.8l2.2-.6L2.8 5.6 4.4 4l2.6 1.6L8.2 4 6.2 1.6Z"
-                />
-              </StatIcon>
-              Mods ({mods.length})
-            </span>
-          </div>
-          {mods.map((mod, index) => (
-            <ModRow
-              key={mod.id}
-              mod={mod}
-              catalog={catalog}
-              first={index === 0}
-              last={index === mods.length - 1}
-              ancestors={[...ancestors, item.id]}
-            />
-          ))}
-        </div>
-      ) : null}
+      <span className="db4-bar-value">
+        {bar.baseDisplay != null ? <span className="db4-bar-base">({bar.baseDisplay})</span> : null}
+        {bar.display}
+      </span>
     </div>
   );
 }
 
-function ModRow({
-  mod,
-  catalog,
-  first,
-  last,
-  ancestors,
-}: {
-  mod: InstalledMod;
-  catalog: Map<string, TarkovItemLite>;
-  first: boolean;
-  last: boolean;
-  ancestors: string[];
-}) {
+function AttachmentCell({ cell }: { cell: GridCell }) {
+  const badges = cellBadges(cell);
+  const title = (cell.item?.shortName || cell.ghostLabel).toUpperCase();
   return (
-    <div className="eft-mod-row">
-      <div className={`eft-hierarchy${first ? " eft-hierarchy-first" : ""}`} aria-hidden="true">
-        <div className="eft-hierarchy-upper" />
-        <div className="eft-hierarchy-middle" />
-        {last ? null : <div className="eft-hierarchy-bottom" />}
+    <article
+      className={`db4-cell${cell.empty ? " db4-cell-empty" : ""}`}
+      data-family={cell.family}
+      data-col={cell.x}
+      data-row={cell.y}
+    >
+      <header className="db4-cell-head">{title}</header>
+      <div className="db4-cell-body">
+        {badges.recoil ? <span className="db4-badge db4-badge-recoil">{badges.recoil}</span> : null}
+        {badges.ergo ? (
+          <span className={`db4-badge db4-badge-ergo${(cell.ergo ?? 0) < 0 ? " db4-badge-penalty" : ""}`}>
+            {badges.ergo}
+          </span>
+        ) : null}
+        {cell.empty ? (
+          <GhostGlyph family={cell.family} />
+        ) : cell.image ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={cell.image} alt="" className="db4-cell-img" />
+        ) : null}
+        {cell.caption ? <p className="db4-cell-caption">{cell.caption}</p> : null}
       </div>
-      <div className="eft-mod-slot">
-        <div className="eft-mod-caption">{mod.slotLabel}</div>
-        <ItemInspect item={mod.item} catalog={catalog} ancestors={ancestors} mods={mod.children} />
-      </div>
-    </div>
+    </article>
   );
 }
 
@@ -294,34 +173,90 @@ function WeaponOverview({
 }) {
   const weapon = overviewWeapon(items, catalog);
   if (!weapon) return null;
-  const slot =
-    WEAPON_COLUMN_SLOTS.find((row) => itemForSlot(items, row)?.itemId === weapon.id) ?? ("Primary" as KitSlot);
+  const ammoItem = itemForSlot(items, "Ammo");
+  const ammo = ammoItem?.itemId ? catalog.get(ammoItem.itemId) : undefined;
+  const board = buildGunBoard(weapon, catalog, ammo && !isUnpublishedSlot(ammoItem) ? ammo : undefined);
+  const stats = assembledGunStats(weapon, catalog, ammo && !isUnpublishedSlot(ammoItem) ? ammo : undefined);
+  const colLine = board.xs.map(String).join(" ");
+  const rowLine = board.ys.map(String).join(" ");
+  const gunCol = board.xs.indexOf(board.gun.x) + 1;
+  const gunRow = board.ys.indexOf(board.gun.y) + 1;
+  const weightFill =
+    stats.weightTotal > 0 ? Math.max(0, Math.min(1, stats.weightCurrent / stats.weightTotal)) : 0;
 
   return (
-    <section className="eft-slot-panel">
-      <header className="eft-slot-header">
-        <span className="eft-slot-chevron" aria-hidden="true">
-          <StatIcon>
-            <path fill="currentColor" d="M10.2 3.2 5.4 8l4.8 4.8 1.1-1.1L7.6 8l3.7-3.7Z" />
-          </StatIcon>
-        </span>
-        <div className="eft-slot-title">
-          <svg className="eft-slot-icon" viewBox="0 0 16 16" aria-hidden="true">
-            <path
-              fill="currentColor"
-              d="M2 8.2h7.2l1.3-1.6h2.8l.9 1.2H15v1.4h-1.1L13 10.6H9.8L8.4 12H5.6L4.2 10.4H2Z"
-            />
-          </svg>
-          <span>{SLOT_UI[slot].label}</span>
+    <section className="db4-gun">
+      {stats.bars.length > 0 ? (
+        <div className="db4-stats">
+          {stats.bars.map((bar) => (
+            <StatBarRow key={bar.id} bar={bar} />
+          ))}
         </div>
-        <span className="eft-slot-chevron" aria-hidden="true">
-          <StatIcon>
-            <path fill="currentColor" d="M5.8 3.2 4.7 4.3 8.4 8l-3.7 3.7 1.1 1.1L10.6 8Z" />
-          </StatIcon>
-        </span>
-      </header>
-      <div className="eft-slot-items">
-        <ItemInspect item={weapon} catalog={catalog} main />
+      ) : null}
+
+      <div
+        className="db4-board"
+        style={
+          {
+            "--db4-cols": board.xs.length,
+            "--db4-rows": board.ys.length,
+            gridTemplateColumns: `repeat(${board.xs.length}, var(--db4-img))`,
+            gridTemplateRows: `repeat(${board.ys.length}, var(--db4-cell-h))`,
+          } as CSSProperties
+        }
+        data-cols={colLine}
+        data-rows={rowLine}
+      >
+        {board.cells.map((cell) => {
+          const col = board.xs.indexOf(cell.x) + 1;
+          const row = board.ys.indexOf(cell.y) + 1;
+          return (
+            <div
+              key={cell.key}
+              className="db4-cell-slot"
+              style={{ gridColumn: col, gridRow: row } as CSSProperties}
+            >
+              <AttachmentCell cell={cell} />
+            </div>
+          );
+        })}
+        <article
+          className="db4-cell db4-cell-gun"
+          style={{ gridColumn: `${gunCol} / span ${board.gun.colSpan}`, gridRow: gunRow } as CSSProperties}
+        >
+          <header className="db4-cell-head">{board.gun.shortName.toUpperCase()}</header>
+          <div className="db4-cell-body">
+            {board.gun.image ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={board.gun.image} alt="" className="db4-cell-img db4-cell-img-gun" />
+            ) : null}
+            {board.gun.dps != null ? <p className="db4-dps">dps {board.gun.dps}</p> : null}
+            <div className="db4-weight">
+              <p className="db4-weight-text">
+                <span className="db4-weight-current">
+                  {stats.weightCurrent.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+                {" / "}
+                {stats.weightTotal.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                {"  kg"}
+              </p>
+              <span className="db4-weight-track">
+                <span className="db4-weight-fill" style={{ width: `${weightFill * 100}%` }} />
+              </span>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div className="db4-rails">
+        <p className="db4-rails-label">rail attachments</p>
+        {board.rails.length > 0 ? (
+          <div className="db4-rails-row">
+            {board.rails.map((cell) => (
+              <AttachmentCell key={cell.key} cell={cell} />
+            ))}
+          </div>
+        ) : null}
       </div>
     </section>
   );

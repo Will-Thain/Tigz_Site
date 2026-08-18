@@ -171,6 +171,7 @@ export type ComponentNode = {
 
 export type InstalledMod = {
   id: string;
+  nameId?: string;
   slotLabel: string;
   item: TarkovItemLite;
   children: InstalledMod[];
@@ -369,6 +370,7 @@ export function installedMods(
     used.add(id);
     rows.push({
       id,
+      nameId: slot.nameId,
       slotLabel: humanSlotLabel(slot.nameId, slot.name),
       item: part,
       children: installedMods(part, catalog, used),
@@ -384,6 +386,7 @@ export function installedMods(
     used.add(id);
     host.children.push({
       id,
+      nameId: slot?.nameId,
       slotLabel: humanSlotLabel(slot?.nameId, slot?.name),
       item: part,
       children: installedMods(part, catalog, used),

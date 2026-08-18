@@ -45,6 +45,12 @@ export type TarkovItemLite = {
   slots?: CatalogSlot[];
   defaultWidth?: number;
   defaultHeight?: number;
+  recoilModifier?: number;
+  accuracyModifier?: number;
+  centerOfImpact?: number;
+  initialSpeed?: number;
+  damage?: number;
+  capacity?: number;
 };
 
 export type CatalogTask = {
@@ -227,6 +233,12 @@ function mapItems(data: unknown[]): TarkovItemLite[] {
       fireRate: optionalNumber(props?.fireRate),
       velocity: optionalNumber(props?.velocity) ?? optionalNumber(item.velocity),
       effectiveDistance: optionalNumber(props?.effectiveDistance),
+      recoilModifier: optionalNumber(props?.recoilModifier),
+      accuracyModifier: optionalNumber(props?.accuracyModifier),
+      centerOfImpact: optionalNumber(props?.centerOfImpact),
+      initialSpeed: optionalNumber(props?.initialSpeed),
+      damage: optionalNumber(props?.damage),
+      capacity: optionalNumber(props?.capacity),
       fireModes: stringList(props?.fireModes),
       containsIds: mapContainsIds(item.containsItems) ?? mapContainsIds(props?.containsItems),
       slots: mapCatalogSlots(props?.slots) ?? mapCatalogSlots(item.slots),
