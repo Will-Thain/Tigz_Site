@@ -16,6 +16,7 @@ import {
   pickKitImage,
   resolveKitItemName,
   resolveKitShortName,
+  SILHOUETTE_ART,
   SILHOUETTE_ZONES,
   slotCellSize,
   SLOT_UI,
@@ -89,10 +90,15 @@ describe("kit display", () => {
     expect(kitSlotForZone("onSling")).toBe("Primary");
     expect(kitSlotForZone("earpiece")).toBe("Headset");
     expect(kitSlotForZone("headwear")).toBeUndefined();
+    expect(SILHOUETTE_ART).toBe("/kit/inventory-slots-selection.webp");
     const armor = SILHOUETTE_ZONES.find((zone) => zone.id === "bodyArmor")!;
     const headwear = SILHOUETTE_ZONES.find((zone) => zone.id === "headwear")!;
     const sling = SILHOUETTE_ZONES.find((zone) => zone.id === "onSling")!;
     const holster = SILHOUETTE_ZONES.find((zone) => zone.id === "holster")!;
+    expect(headwear).toMatchObject({ left: 11.1, top: 2.4, width: 6.1, height: 6.1 });
+    expect(armor).toMatchObject({ left: 11.1, top: 10.4, width: 6.1, height: 6.1 });
+    expect(sling).toMatchObject({ left: 2.25, top: 18.45, width: 15, height: 6.1 });
+    expect(holster).toMatchObject({ left: 20, top: 18.45, width: 6.1, height: 6.1 });
     expect(armor.top).toBeGreaterThan(headwear.top);
     expect(sling.width).toBeGreaterThan(holster.width * 1.8);
     expect(sling.top).toBeLessThan(SILHOUETTE_ZONES.find((zone) => zone.id === "onBack")!.top);

@@ -3,7 +3,6 @@ import type { Kit, KitItem } from "@/data/kits";
 import {
   ammoCaption,
   BODY_SLOTS,
-  cellBackground,
   componentOverview,
   isUnpublishedSlot,
   kitSlotsInOrder,
@@ -11,13 +10,14 @@ import {
   pickKitImage,
   resolveKitItemName,
   resolveKitShortName,
+  SILHOUETTE_ART,
   SILHOUETTE_ASPECT,
+  SILHOUETTE_FRAME_EM,
   SILHOUETTE_ZONES,
   type SilhouetteZone,
   weaponStats,
 } from "@/lib/kit-display";
 import type { TarkovItemLite } from "@/lib/tarkov";
-import { PmcFigure, SlotGlyph } from "./SlotGlyphs";
 
 function shownItem(item: KitItem, catalog: Map<string, TarkovItemLite>) {
   const hydrated = item.itemId ? catalog.get(item.itemId) : undefined;
@@ -26,9 +26,11 @@ function shownItem(item: KitItem, catalog: Map<string, TarkovItemLite>) {
     name: resolveKitItemName(item, hydrated),
     shortName: resolveKitShortName(item, hydrated),
     image: pickKitImage(item.slot, hydrated) ?? hydrated?.iconLink,
-    tile: cellBackground(hydrated?.backgroundColor),
-    hydrated,
   };
+}
+
+function em(value: number): string {
+  return `${value}em`;
 }
 
 function SilhouetteSlot({
@@ -44,17 +46,19 @@ function SilhouetteSlot({
 }) {
   const shown = item ? shownItem(item, catalog) : undefined;
   const filled = Boolean(shown && !shown.unpublished && shown.image);
-  const style = {
-    left: `${zone.left}%`,
-    top: `${zone.top}%`,
-    width: `${zone.width}%`,
-    height: `${zone.height}%`,
-    "--tile": filled ? shown?.tile : undefined,
+  const itemStyle = {
+    left: em(zone.left),
+    top: em(zone.top),
+    width: em(zone.width),
+    height: em(zone.height),
   } as CSSProperties;
   const labelStyle = {
-    left: `${zone.left}%`,
-    top: `${zone.labelTop}%`,
-    width: `${zone.labelWidth}%`,
+    left: em(zone.left),
+    top: em(zone.labelTop),
+    width: em(zone.labelWidth),
+    height: em(zone.labelHeight),
+    paddingLeft: em(0.1),
+    paddingRight: em(0.1),
   } as CSSProperties;
 
   return (
@@ -65,30 +69,17 @@ function SilhouetteSlot({
         </p>
       ) : null}
       <article
-        className={`eft-slot${filled ? "" : " eft-slot-empty"}${zone.slot ? "" : " eft-slot-ghost"}`}
+        className={`eft-zone${filled ? " eft-zone-filled" : ""}`}
         data-slot={zone.slot ?? zone.id}
         data-zone={zone.id}
-        style={style}
+        style={itemStyle}
       >
-        <span className="eft-slot-header" />
-        <div className="eft-slot-body">
-          {filled ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={shown!.image} alt="" className="eft-slot-item" />
-          ) : (
-            <SlotGlyph slot={zone.glyph} />
-          )}
-        </div>
         {filled ? (
-          <div className="eft-slot-caption">
-            <p>{shown!.shortName ?? shown!.name}</p>
-            {item?.detail ? <p className="eft-slot-detail">{item.detail}</p> : null}
-            {zone.slot === "Primary" && ammo ? (
-              <p className="eft-slot-ammo">
-                {ammo.unpublished ? "Ammo unpublished" : ammo.detail ? `${ammo.name} · ${ammo.detail}` : ammo.name}
-              </p>
-            ) : null}
-          </div>
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={shown!.image} alt="" className="eft-zone-item" />
+        ) : null}
+        {filled && zone.slot === "Primary" && ammo && !ammo.unpublished ? (
+          <p className="eft-zone-ammo">{ammo.detail ? `${ammo.name} · ${ammo.detail}` : ammo.name}</p>
         ) : null}
       </article>
     </>
@@ -162,24 +153,26 @@ export function KitInspect({
   return (
     <section className={`eft-equipment${compact ? " eft-equipment-compact" : ""}`}>
       {compact ? null : (
-        <div className="eft-equipment-bar">
-          <span>Equipment</span>
-          <span>{unpublished ? "Unpublished" : wipe ? `Wipe ${wipe}` : "Loadout"}</span>
-        </div>
+        <p className="eft-equipment-status">
+          {unpublished ? "Unpublished" : wipe ? `Wipe ${wipe}` : "Loadout"}
+        </p>
       )}
 
       <div className={`eft-build${hasOverview ? "" : " eft-build-solo"}`}>
         <div className="eft-silhouette" style={{ aspectRatio: SILHOUETTE_ASPECT }}>
-          <PmcFigure />
-          {SILHOUETTE_ZONES.map((zone) => (
-            <SilhouetteSlot
-              key={zone.id}
-              zone={zone}
-              item={zone.slot ? bySlot.get(zone.slot) : undefined}
-              catalog={catalog}
-              ammo={zone.slot === "Primary" ? ammo : undefined}
-            />
-          ))}
+          <div className="eft-silhouette-inner" style={{ width: em(SILHOUETTE_FRAME_EM) }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className="eft-silhouette-art" src={SILHOUETTE_ART} alt="" />
+            {SILHOUETTE_ZONES.map((zone) => (
+              <SilhouetteSlot
+                key={zone.id}
+                zone={zone}
+                item={zone.slot ? bySlot.get(zone.slot) : undefined}
+                catalog={catalog}
+                ammo={zone.slot === "Primary" ? ammo : undefined}
+              />
+            ))}
+          </div>
         </div>
         {hasOverview ? <WeaponOverview items={items} catalog={catalog} /> : null}
       </div>
