@@ -6,13 +6,18 @@ import {
   cellBackground,
   componentOverview,
   formatCaliber,
+  formatErgoModifier,
+  formatFireRate,
+  formatWeightKg,
   GEAR_COLUMN_SLOTS,
   humanSlotLabel,
+  installedMods,
   isPlaceholderCatalogName,
   isUnpublishedSlot,
   kitSlotForZone,
   kitSlotsInOrder,
   overviewWeapon,
+  pickItemIcon,
   pickKitImage,
   resolveKitItemName,
   resolveKitShortName,
@@ -159,6 +164,10 @@ describe("kit display", () => {
       "icon.webp",
     );
     expect(pickKitImage("Headset", { id: "hs", name: "ComTac", iconLink: "icon.webp" })).toBe("icon.webp");
+    expect(pickItemIcon({ id: "m4", name: "M4A1", inspectImageLink: "inspect.webp", iconLink: "icon.webp", types: ["gun"] })).toBe(
+      "inspect.webp",
+    );
+    expect(pickItemIcon({ id: "grip", name: "MIAD", iconLink: "icon.webp" })).toBe("icon.webp");
   });
 
   it("fills every kit slot in inspect order", () => {
@@ -174,6 +183,10 @@ describe("kit display", () => {
     expect(formatCaliber("Caliber9x19PARA")).toBe("9x19 PARA");
     expect(formatCaliber("Caliber46x30")).toBe("4.6x30");
     expect(formatCaliber(undefined)).toBeUndefined();
+    expect(formatWeightKg(2.9)).toBe("2.900 kg");
+    expect(formatFireRate(800)).toBe("800/m");
+    expect(formatErgoModifier(5.4)).toBe("+5.4");
+    expect(formatErgoModifier(-2)).toBe("-2");
   });
 
   it("maps catalog background colors onto stash tiles", () => {
@@ -217,6 +230,11 @@ describe("kit display", () => {
       { id: "grip", slotLabel: "Pistol Grip", name: "MIAD pistol grip", shortName: "MIAD", image: "grip.webp" },
       { id: "mag", slotLabel: "Magazine", name: "Stanag", shortName: "STANAG", image: undefined },
       { id: "receiver", slotLabel: "Receiver", name: "Upper receiver", shortName: undefined, image: undefined },
+    ]);
+    expect(installedMods(m4, catalog).map((row) => ({ id: row.id, slotLabel: row.slotLabel, childCount: row.children.length }))).toEqual([
+      { id: "grip", slotLabel: "Pistol Grip", childCount: 0 },
+      { id: "mag", slotLabel: "Magazine", childCount: 0 },
+      { id: "receiver", slotLabel: "Receiver", childCount: 0 },
     ]);
   });
 

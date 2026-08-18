@@ -169,6 +169,13 @@ export type ComponentNode = {
   image?: string;
 };
 
+export type InstalledMod = {
+  id: string;
+  slotLabel: string;
+  item: TarkovItemLite;
+  children: InstalledMod[];
+};
+
 export function isUnpublishedSlot(item: KitItem | undefined): boolean {
   if (!item) return true;
   if (item.itemId) return false;
@@ -202,6 +209,15 @@ export function pickKitImage(slot: KitSlot, catalog?: TarkovItemLite): string | 
     return catalog.inspectImageLink || catalog.image512pxLink || catalog.gridImageLink || catalog.iconLink;
   }
   return catalog.iconLink || catalog.gridImageLink || catalog.image512pxLink || catalog.inspectImageLink;
+}
+
+/** Totov ItemIcon: ranged weapons use imageLink, everything else uses iconLink. */
+export function pickItemIcon(item?: TarkovItemLite): string | undefined {
+  if (!item) return undefined;
+  if (item.types?.includes("gun") || !item.iconLink) {
+    return item.inspectImageLink || item.image512pxLink || item.gridImageLink || item.iconLink;
+  }
+  return item.iconLink || item.gridImageLink || item.image512pxLink || item.inspectImageLink;
 }
 
 export function itemForSlot(items: KitItem[], slot: KitSlot): KitItem | undefined {
@@ -249,6 +265,20 @@ export function formatCaliber(caliber?: string): string | undefined {
   text = text.replace(/^(\d)(\d{2})x/, "$1.$2x");
   text = text.replace(/^([456])(\d)x/, "$1.$2x");
   return text.replace(/\s+/g, " ").trim();
+}
+
+export function formatWeightKg(weight: number): string {
+  return `${weight.toLocaleString("en-GB", { minimumFractionDigits: 3, maximumFractionDigits: 3 })} kg`;
+}
+
+export function formatFireRate(fireRate: number): string {
+  return `${fireRate}/m`;
+}
+
+export function formatErgoModifier(value: number): string {
+  const rounded = Math.round(value * 10) / 10;
+  const text = rounded.toLocaleString("en-GB", { maximumFractionDigits: 1 });
+  return rounded > 0 ? `+${text}` : text;
 }
 
 export function weaponStats(item?: TarkovItemLite): WeaponStat[] {
@@ -318,6 +348,45 @@ export function componentOverview(
       image: part?.iconLink || part?.gridImageLink || part?.inspectImageLink,
     };
   });
+}
+
+export function installedMods(
+  item: TarkovItemLite | undefined,
+  catalog: Map<string, TarkovItemLite>,
+  used: Set<string> = new Set(),
+): InstalledMod[] {
+  if (!item) return [];
+  const ids = (item.containsIds ?? []).filter((id) => id !== item.id && !used.has(id));
+  if (ids.length === 0) return [];
+  const rows: InstalledMod[] = [];
+  const claimed = new Set<string>();
+  for (const slot of item.slots ?? []) {
+    const id = ids.find((cid) => !claimed.has(cid) && slot.allowedItemIds.includes(cid));
+    if (!id) continue;
+    const part = catalog.get(id);
+    if (!part) continue;
+    claimed.add(id);
+    used.add(id);
+    rows.push({
+      id,
+      slotLabel: humanSlotLabel(slot.nameId, slot.name),
+      item: part,
+      children: installedMods(part, catalog, used),
+    });
+  }
+  for (const id of ids) {
+    if (claimed.has(id) || used.has(id)) continue;
+    const part = catalog.get(id);
+    if (!part) continue;
+    used.add(id);
+    rows.push({
+      id,
+      slotLabel: "Mod",
+      item: part,
+      children: installedMods(part, catalog, used),
+    });
+  }
+  return rows;
 }
 
 export function overviewWeapon(
