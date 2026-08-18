@@ -132,6 +132,7 @@ body {
   content: "";
   position: absolute;
   inset: 0;
+  z-index: 3;
 }
 
 .eft-zone:hover::after {
@@ -142,6 +143,9 @@ body {
   box-sizing: border-box;
   position: relative;
   display: flex;
+  flex-direction: row;
+  flex-shrink: 0;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: center;
   overflow: hidden;
@@ -157,7 +161,7 @@ body {
   height: 100%;
   max-width: unset;
   max-height: unset;
-  object-fit: contain;
+  object-fit: fill;
   clip-path: inset(1px);
   transform: scale(1.05);
 }
@@ -169,10 +173,9 @@ body {
   z-index: 2;
   margin: 0;
   height: var(--eft-em);
-  overflow: hidden;
   font-family: var(--font-roboto), "Roboto Condensed", sans-serif;
   font-size: calc(0.75 * var(--eft-em));
-  line-height: var(--eft-em);
+  line-height: normal;
   text-align: right;
   color: rgba(255, 255, 255, 0.87);
   text-shadow:
@@ -185,20 +188,22 @@ body {
 
 .eft-zone-ammo {
   position: absolute;
-  right: calc(0.15 * var(--eft-em));
-  bottom: calc(0.1 * var(--eft-em));
-  left: calc(0.15 * var(--eft-em));
+  right: 3px;
+  bottom: 1px;
   z-index: 2;
   margin: 0;
+  height: var(--eft-em);
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-family: var(--font-sans), sans-serif;
-  font-size: calc(0.65 * var(--eft-em));
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.78);
-  text-shadow: 0 0 4px #000;
+  font-family: var(--font-roboto), "Roboto Condensed", sans-serif;
+  font-size: calc(0.875 * var(--eft-em));
+  line-height: var(--eft-em);
+  text-align: right;
+  color: rgba(255, 255, 255, 0.87);
+  text-shadow:
+    1px 1px 0 #000,
+    -1px 1px 0 #000,
+    1px -1px 0 #000,
+    -1px -1px 0 #000;
   pointer-events: none;
 }
 

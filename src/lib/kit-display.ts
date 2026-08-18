@@ -342,7 +342,7 @@ export function ammoCaption(
   const hydrated = ammo.itemId ? catalog.get(ammo.itemId) : undefined;
   return {
     unpublished: isUnpublishedSlot(ammo),
-    name: resolveKitItemName(ammo, hydrated),
+    name: catalogShortName(hydrated) ?? resolveKitItemName(ammo, hydrated),
     detail: ammo.detail,
   };
 }

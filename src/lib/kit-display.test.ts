@@ -228,6 +228,9 @@ describe("kit display", () => {
     ];
     expect(overviewWeapon(items, catalog)?.id).toBe("m4");
     expect(ammoCaption(items, catalog)).toEqual({ unpublished: false, name: "M855A1", detail: undefined });
+    expect(
+      ammoCaption(items, new Map([["m4", m4], ["m855", { id: "m855", name: "5.56x45mm M855A1", shortName: "M855A1" }]])),
+    ).toEqual({ unpublished: false, name: "M855A1", detail: undefined });
     expect(ammoCaption([], catalog).unpublished).toBe(true);
   });
 });
