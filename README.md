@@ -75,5 +75,5 @@ In the Twitch developer console, add OAuth redirect `https://<host>/api/auth/cal
 
 Optional: `DATABASE_URL` then `npm run db:migrate`, Turnstile pair, `TARKOVTRACKER_TOKEN`, `RESEND_API_KEY`.
 
-Kit stays unpublished until someone publishes at `/admin/kit`. Do not invent a loadout to look live.
+The seed `/kit` card is a catalog example for the character plate. It is not a Tigz loadout. Publish at `/admin/kit` to replace it.
 

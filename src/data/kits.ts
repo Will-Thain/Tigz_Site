@@ -34,26 +34,29 @@ export type Kit = {
   items: KitItem[];
 };
 
+/** Catalog IDs for the public example plate. Not a Tigz loadout. */
+export const EXAMPLE_KIT_ITEMS: KitItem[] = [
+  { slot: "Primary", itemId: "5447a9cd4bdc2dbd208b4567", label: "M4A1" },
+  { slot: "Secondary", itemId: "5644bd2b4bdc2d3b4c8b4572", label: "AK-74N" },
+  { slot: "Pistol", itemId: "56d59856d2720bd8418b456a", label: "P226R" },
+  { slot: "Armor", itemId: "5648a7494bdc2d9d488b4583", label: "PACA" },
+  { slot: "Rig", itemId: "5648a69d4bdc2ded0b8b457b", label: "BlackRock" },
+  { slot: "Backpack", itemId: "544a5cde4bdc2d39388b456b", label: "MBSS" },
+  { slot: "Headset", itemId: "5645bcc04bdc2d363b8b4572", label: "ComTac II" },
+  { slot: "Ammo", itemId: "54527ac44bdc2d36668b4567", label: "M855A1" },
+];
+
 export const kits: Kit[] = [
   {
-    id: "placeholder-current",
+    id: "example-kit",
     wipe: "1.0",
-    title: "Waiting on first publish",
+    title: "Example kit",
     notes:
-      "This is not a live pull from Escape from Tarkov. When Tigz or a mod publishes a kit in /admin, it will replace this card. Until then the slots below are a layout demo only.",
+      "Catalog demo for the character plate. Not a Tigz loadout. Publish from /admin/kit to replace it.",
     isCurrent: true,
-    publishedAt: "2026-08-15T00:00:00.000Z",
+    publishedAt: "2026-08-18T00:00:00.000Z",
     publishedBy: "hub",
-    items: [
-      { slot: "Primary", itemId: "", label: "Unpublished", detail: "Rifle + optic TBD" },
-      { slot: "Secondary", itemId: "", label: "Unpublished", detail: "SMG / shotgun TBD" },
-      { slot: "Pistol", itemId: "", label: "Unpublished" },
-      { slot: "Armor", itemId: "", label: "Unpublished", detail: "Class TBD" },
-      { slot: "Rig", itemId: "", label: "Unpublished" },
-      { slot: "Backpack", itemId: "", label: "Unpublished" },
-      { slot: "Headset", itemId: "", label: "Unpublished" },
-      { slot: "Ammo", itemId: "", label: "Unpublished", detail: "Caliber TBD" },
-    ],
+    items: EXAMPLE_KIT_ITEMS,
   },
 ];
 

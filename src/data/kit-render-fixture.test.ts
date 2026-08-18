@@ -3,10 +3,10 @@ import { kits } from "@/data/kits";
 import { KIT_RENDER_FIXTURE } from "./kit-render-fixture";
 
 describe("kit render fixture", () => {
-  it("keeps catalog asset IDs off the unpublished current kit", () => {
+  it("reuses the example catalog IDs without becoming the current kit record", () => {
     expect(KIT_RENDER_FIXTURE.isCurrent).toBe(false);
     expect(kits.some((kit) => kit.id === KIT_RENDER_FIXTURE.id)).toBe(false);
-    expect(KIT_RENDER_FIXTURE.items.every((item) => item.itemId.length > 0)).toBe(true);
+    expect(KIT_RENDER_FIXTURE.items).toEqual(kits[0]?.items);
     expect(KIT_RENDER_FIXTURE.notes.toLowerCase()).toContain("not a tigz loadout");
   });
 });
