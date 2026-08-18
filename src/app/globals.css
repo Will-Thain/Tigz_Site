@@ -99,20 +99,23 @@ body {
   z-index: 2;
   box-sizing: border-box;
   display: flex;
-  align-items: center;
   margin: 0;
   overflow: hidden;
   white-space: nowrap;
   font-family: var(--font-roboto), "Roboto", sans-serif;
   font-size: calc(0.75 * var(--eft-em));
   font-weight: 400;
-  line-height: 1;
+  line-height: normal;
   letter-spacing: 0.25px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.87);
   pointer-events: none;
+}
+
+.eft-zone-label span {
+  display: block;
 }
 
 .eft-zone {

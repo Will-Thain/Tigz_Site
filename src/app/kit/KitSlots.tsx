@@ -64,7 +64,7 @@ function SilhouetteSlot({
     <>
       {zone.showLabel ? (
         <p className="eft-zone-label" style={labelStyle}>
-          {zone.label}
+          <span>{zone.label}</span>
         </p>
       ) : null}
       <article
