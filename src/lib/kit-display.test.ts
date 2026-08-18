@@ -17,6 +17,8 @@ import {
   resolveKitItemName,
   resolveKitShortName,
   SILHOUETTE_ART,
+  SILHOUETTE_CAPTION_EM,
+  SILHOUETTE_EM_PX,
   SILHOUETTE_FRAME_EM,
   SILHOUETTE_FRAME_PX,
   SILHOUETTE_ZONES,
@@ -111,6 +113,18 @@ describe("kit display", () => {
     expect(sling.width).toBeGreaterThan(holster.width * 1.8);
     expect(sling.top).toBeLessThan(SILHOUETTE_ZONES.find((zone) => zone.id === "onBack")!.top);
     expect(special.label).toBe("Special");
+  });
+
+  it("keeps caption type size from shrinking overlay left/top/width", () => {
+    const armor = SILHOUETTE_ZONES.find((zone) => zone.id === "bodyArmor")!;
+    const special = SILHOUETTE_ZONES.find((zone) => zone.id === "special")!;
+    expect(SILHOUETTE_CAPTION_EM).toBe(0.75);
+    expect(armor.labelWidth * SILHOUETTE_EM_PX).toBe(6.1 * 14);
+    expect(armor.labelWidth * SILHOUETTE_EM_PX * SILHOUETTE_CAPTION_EM).toBeLessThan(6.1 * 14);
+    expect(special.labelTop * SILHOUETTE_EM_PX).toBe(48.95 * 14);
+    expect(armor.labelTop).toBeLessThan(armor.top);
+    expect(armor.top - armor.labelTop).toBeCloseTo(1.1);
+    expect(armor.labelHeight).toBe(0.85);
   });
 
   it("treats empty slots and Unpublished labels as unpublished", () => {

@@ -27,8 +27,9 @@ function shownItem(item: KitItem, catalog: Map<string, TarkovItemLite>) {
   };
 }
 
-function em(value: number): string {
-  return `${value}em`;
+/** Totov positions labels in rem (html 14px), not in the 0.75 caption em. */
+function plate(value: number): string {
+  return `calc(${value} * var(--eft-em))`;
 }
 
 function SilhouetteSlot({
@@ -45,18 +46,18 @@ function SilhouetteSlot({
   const shown = item ? shownItem(item, catalog) : undefined;
   const filled = Boolean(shown && !shown.unpublished && shown.image);
   const itemStyle = {
-    left: em(zone.left),
-    top: em(zone.top),
-    width: em(zone.width),
-    height: em(zone.height),
+    left: plate(zone.left),
+    top: plate(zone.top),
+    width: plate(zone.width),
+    height: plate(zone.height),
   } as CSSProperties;
   const labelStyle = {
-    left: em(zone.left),
-    top: em(zone.labelTop),
-    width: em(zone.labelWidth),
-    height: em(zone.labelHeight),
-    paddingLeft: em(0.1),
-    paddingRight: em(0.1),
+    left: plate(zone.left),
+    top: plate(zone.labelTop),
+    width: plate(zone.labelWidth),
+    height: plate(zone.labelHeight),
+    paddingLeft: plate(0.1),
+    paddingRight: plate(0.1),
   } as CSSProperties;
 
   return (

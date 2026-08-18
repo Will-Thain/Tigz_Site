@@ -18,6 +18,9 @@ export const BODY_SLOTS: KitSlot[] = [...WEAPON_COLUMN_SLOTS, ...GEAR_COLUMN_SLO
 export const SILHOUETTE_ASPECT = "400 / 808";
 export const SILHOUETTE_FRAME_PX = 399;
 export const SILHOUETTE_FRAME_EM = 28.5;
+/** Overlay unit matching Totov html rem (14px). Caption type is 0.75 of this, never the layout unit. */
+export const SILHOUETTE_EM_PX = 14;
+export const SILHOUETTE_CAPTION_EM = 0.75;
 export const SILHOUETTE_ART = "/kit/inventory-slots-selection.webp";
 
 export type SilhouetteGlyph =
