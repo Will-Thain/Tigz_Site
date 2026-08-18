@@ -74,8 +74,11 @@ function SilhouetteSlot({
         style={itemStyle}
       >
         {filled ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={shown!.image} alt="" className="eft-zone-item" />
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={shown!.image} alt="" className="eft-zone-item" />
+            {shown!.shortName ? <p className="eft-zone-short">{shown!.shortName}</p> : null}
+          </>
         ) : null}
         {filled && zone.slot === "Primary" && ammo && !ammo.unpublished ? (
           <p className="eft-zone-ammo">{ammo.detail ? `${ammo.name} · ${ammo.detail}` : ammo.name}</p>

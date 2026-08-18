@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Barlow_Condensed, IBM_Plex_Mono, Roboto, Source_Sans_3 } from "next/font/google";
+import { Barlow_Condensed, IBM_Plex_Mono, Roboto_Condensed, Source_Sans_3 } from "next/font/google";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import "./globals.css";
@@ -16,7 +16,7 @@ const sans = Source_Sans_3({
   variable: "--font-sans",
 });
 
-const roboto = Roboto({
+const roboto = Roboto_Condensed({
   subsets: ["latin"],
   weight: ["400"],
   variable: "--font-roboto",
