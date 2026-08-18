@@ -22,6 +22,12 @@ const roboto = Roboto({
   variable: "--font-roboto",
 });
 
+const mono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-mono",
+});
+
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 const description =
   "Watch Tigz live on Twitch. Tarkov kit, quest board, schedule, FAQs, polls, and brand partnerships — then go to twitch.tv/tigz.";

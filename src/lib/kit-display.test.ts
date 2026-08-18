@@ -17,6 +17,8 @@ import {
   resolveKitItemName,
   resolveKitShortName,
   SILHOUETTE_ART,
+  SILHOUETTE_FRAME_EM,
+  SILHOUETTE_FRAME_PX,
   SILHOUETTE_ZONES,
   slotCellSize,
   SLOT_UI,
@@ -91,18 +93,24 @@ describe("kit display", () => {
     expect(kitSlotForZone("earpiece")).toBe("Headset");
     expect(kitSlotForZone("headwear")).toBeUndefined();
     expect(SILHOUETTE_ART).toBe("/kit/inventory-slots-selection.webp");
+    expect(SILHOUETTE_FRAME_PX).toBe(399);
+    expect(SILHOUETTE_FRAME_EM).toBe(28.5);
     const armor = SILHOUETTE_ZONES.find((zone) => zone.id === "bodyArmor")!;
     const headwear = SILHOUETTE_ZONES.find((zone) => zone.id === "headwear")!;
     const sling = SILHOUETTE_ZONES.find((zone) => zone.id === "onSling")!;
     const holster = SILHOUETTE_ZONES.find((zone) => zone.id === "holster")!;
-    expect(headwear).toMatchObject({ left: 11.1, top: 2.4, width: 6.1, height: 6.1 });
+    const pockets = SILHOUETTE_ZONES.find((zone) => zone.id === "pockets")!;
+    const special = SILHOUETTE_ZONES.find((zone) => zone.id === "special")!;
+    expect(headwear).toMatchObject({ left: 11.1, top: 2.4, width: 6.1, height: 6.1, labelWidth: 6.1 });
     expect(armor).toMatchObject({ left: 11.1, top: 10.4, width: 6.1, height: 6.1 });
-    expect(sling).toMatchObject({ left: 2.25, top: 18.45, width: 15, height: 6.1 });
+    expect(sling).toMatchObject({ left: 2.25, top: 18.45, width: 15, height: 6.1, labelWidth: 15 });
     expect(holster).toMatchObject({ left: 20, top: 18.45, width: 6.1, height: 6.1 });
+    expect(pockets).toMatchObject({ left: 2.25, top: 42.8, width: 5.35, height: 5.35, labelWidth: 6.1 });
+    expect(special).toMatchObject({ left: 2.25, top: 50, width: 5.35, height: 5.35, labelWidth: 6.1 });
     expect(armor.top).toBeGreaterThan(headwear.top);
     expect(sling.width).toBeGreaterThan(holster.width * 1.8);
     expect(sling.top).toBeLessThan(SILHOUETTE_ZONES.find((zone) => zone.id === "onBack")!.top);
-    expect(SILHOUETTE_ZONES.find((zone) => zone.id === "special")?.label).toBe("Special");
+    expect(special.label).toBe("Special");
   });
 
   it("treats empty slots and Unpublished labels as unpublished", () => {

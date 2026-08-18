@@ -11,8 +11,6 @@ import {
   resolveKitItemName,
   resolveKitShortName,
   SILHOUETTE_ART,
-  SILHOUETTE_ASPECT,
-  SILHOUETTE_FRAME_EM,
   SILHOUETTE_ZONES,
   type SilhouetteZone,
   weaponStats,
@@ -159,8 +157,8 @@ export function KitInspect({
       )}
 
       <div className={`eft-build${hasOverview ? "" : " eft-build-solo"}`}>
-        <div className="eft-silhouette" style={{ aspectRatio: SILHOUETTE_ASPECT }}>
-          <div className="eft-silhouette-inner" style={{ width: em(SILHOUETTE_FRAME_EM) }}>
+        <div className="eft-silhouette">
+          <div className="eft-silhouette-inner">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img className="eft-silhouette-art" src={SILHOUETTE_ART} alt="" />
             {SILHOUETTE_ZONES.map((zone) => (

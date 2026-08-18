@@ -11,8 +11,12 @@ export const GEAR_COLUMN_SLOTS: KitSlot[] = ["Headset", "Armor", "Rig", "Backpac
 
 export const BODY_SLOTS: KitSlot[] = [...WEAPON_COLUMN_SLOTS, ...GEAR_COLUMN_SLOTS];
 
-/** Totov /build plate is 400×808 inside a 28.5em frame (1em ≈ 14.035px). */
+/**
+ * Totov /build plate: html is 14px, container is 28.5rem with * { box-sizing: border-box }.
+ * Outer frame is 399px including a 1px border; the webp is stretched to 397×802.
+ */
 export const SILHOUETTE_ASPECT = "400 / 808";
+export const SILHOUETTE_FRAME_PX = 399;
 export const SILHOUETTE_FRAME_EM = 28.5;
 export const SILHOUETTE_ART = "/kit/inventory-slots-selection.webp";
 
@@ -57,7 +61,14 @@ function zone(
   glyph: SilhouetteGlyph,
   row: keyof typeof ITEM_TOP,
   col: 1 | 2 | 3,
-  options: { slot?: KitSlot; wide?: boolean; small?: boolean; smallCol?: 1 | 2 | 3 | 4; showLabel?: boolean } = {},
+  options: {
+    slot?: KitSlot;
+    wide?: boolean;
+    small?: boolean;
+    smallCol?: 1 | 2 | 3 | 4;
+    showLabel?: boolean;
+    labelWidth?: number;
+  } = {},
 ): SilhouetteZone {
   const small = options.small === true;
   const left = small ? SMALL_COL[options.smallCol ?? 1] : COL[col];
@@ -73,7 +84,7 @@ function zone(
     width,
     height,
     labelTop: TEXT_TOP[row],
-    labelWidth: width,
+    labelWidth: options.labelWidth ?? width,
     labelHeight: TEXT_H,
     showLabel: options.showLabel ?? true,
   };
@@ -94,11 +105,11 @@ export const SILHOUETTE_ZONES: SilhouetteZone[] = [
   zone("tacticalRig", "Tactical rig", "Rig", 5, 1, { slot: "Rig" }),
   zone("backpack", "Backpack", "Backpack", 5, 2, { slot: "Backpack" }),
   zone("pouch", "Pouch", "Pouch", 5, 3),
-  zone("pockets", "Pockets", "Pockets", 6, 1, { small: true, smallCol: 1 }),
+  zone("pockets", "Pockets", "Pockets", 6, 1, { small: true, smallCol: 1, labelWidth: ITEM }),
   zone("pockets2", "", "Pockets", 6, 1, { small: true, smallCol: 2, showLabel: false }),
   zone("pockets3", "", "Pockets", 6, 1, { small: true, smallCol: 3, showLabel: false }),
   zone("pockets4", "", "Pockets", 6, 1, { small: true, smallCol: 4, showLabel: false }),
-  zone("special", "Special", "Special", 7, 1, { small: true, smallCol: 1 }),
+  zone("special", "Special", "Special", 7, 1, { small: true, smallCol: 1, labelWidth: ITEM }),
   zone("special2", "", "Special", 7, 1, { small: true, smallCol: 2, showLabel: false }),
   zone("special3", "", "Special", 7, 1, { small: true, smallCol: 3, showLabel: false }),
 ];
