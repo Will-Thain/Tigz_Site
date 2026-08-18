@@ -19,6 +19,7 @@ import {
   SILHOUETTE_ART,
   SILHOUETTE_ZONES,
   SLOT_UI,
+  treeWeight,
   WEAPON_COLUMN_SLOTS,
   type InstalledMod,
   type SilhouetteZone,
@@ -109,23 +110,27 @@ function ItemInspect({
   catalog,
   main = false,
   ancestors = [],
+  mods: givenMods,
 }: {
   item: TarkovItemLite;
   catalog: Map<string, TarkovItemLite>;
   main?: boolean;
   ancestors?: string[];
+  mods?: InstalledMod[];
 }) {
   if (ancestors.includes(item.id)) return null;
   const name = resolveKitItemName({ slot: "Primary", itemId: item.id, label: item.shortName || item.id }, item);
   const image = pickItemIcon(item);
   const gun = item.types?.includes("gun") === true;
-  const mods = installedMods(item, catalog);
+  const mods = givenMods ?? installedMods(item, catalog);
   const caliber = formatCaliber(item.caliber);
   const ergoMod = !gun && item.ergonomics != null && item.ergonomics !== 0;
+  const weight = main ? treeWeight(item, catalog) : item.weight;
+  const withMods = main && (item.containsIds?.length ?? 0) > 0;
 
   return (
-    <div className={`eft-item${main ? " eft-item-main" : ""}`}>
-      <div className="eft-item-header-container">
+    <div className="eft-item">
+      <div className={`eft-item-header-container${main ? " eft-item-main" : " eft-item-padded"}`}>
         <div>
           <div className="eft-item-header">
             <div>
@@ -139,16 +144,16 @@ function ItemInspect({
             </div>
           </div>
           <div className="eft-item-stats">
-            {item.weight != null && item.weight > 0 ? (
+            {weight != null && weight > 0 ? (
               <div className="eft-item-weight">
-                <span className="eft-card-value">
+                <span className={`eft-card-value${withMods ? " eft-card-with-mods" : ""}`}>
                   <StatIcon>
                     <path
                       fill="currentColor"
                       d="M8 1.5A2.5 2.5 0 0 0 5.5 4h-.75A1.75 1.75 0 0 0 3 5.75v.5h10v-.5A1.75 1.75 0 0 0 11.25 4H10.5A2.5 2.5 0 0 0 8 1.5Zm0 1A1.5 1.5 0 0 1 9.5 4h-3A1.5 1.5 0 0 1 8 2.5ZM3.75 7.5A.75.75 0 0 0 3 8.25V13a1.5 1.5 0 0 0 1.5 1.5h7A1.5 1.5 0 0 0 13 13V8.25a.75.75 0 0 0-.75-.75Z"
                     />
                   </StatIcon>
-                  {formatWeightKg(item.weight)}
+                  {formatWeightKg(weight)}
                 </span>
               </div>
             ) : (
@@ -274,7 +279,7 @@ function ModRow({
       </div>
       <div className="eft-mod-slot">
         <div className="eft-mod-caption">{mod.slotLabel}</div>
-        <ItemInspect item={mod.item} catalog={catalog} ancestors={ancestors} />
+        <ItemInspect item={mod.item} catalog={catalog} ancestors={ancestors} mods={mod.children} />
       </div>
     </div>
   );

@@ -375,7 +375,22 @@ export function installedMods(
     });
   }
   for (const id of ids) {
-    if (claimed.has(id) || used.has(id)) continue;
+    if (used.has(id)) continue;
+    const part = catalog.get(id);
+    if (!part) continue;
+    const host = findModHost(rows, id);
+    if (!host) continue;
+    const slot = host.item.slots?.find((row) => row.allowedItemIds.includes(id));
+    used.add(id);
+    host.children.push({
+      id,
+      slotLabel: humanSlotLabel(slot?.nameId, slot?.name),
+      item: part,
+      children: installedMods(part, catalog, used),
+    });
+  }
+  for (const id of ids) {
+    if (used.has(id)) continue;
     const part = catalog.get(id);
     if (!part) continue;
     used.add(id);
@@ -387,6 +402,25 @@ export function installedMods(
     });
   }
   return rows;
+}
+
+function findModHost(rows: InstalledMod[], id: string): InstalledMod | undefined {
+  for (const row of rows) {
+    if (row.item.slots?.some((slot) => slot.allowedItemIds.includes(id))) return row;
+    const nested = findModHost(row.children, id);
+    if (nested) return nested;
+  }
+  return undefined;
+}
+
+export function treeWeight(item: TarkovItemLite | undefined, catalog: Map<string, TarkovItemLite>, seen: Set<string> = new Set()): number {
+  if (!item || seen.has(item.id)) return 0;
+  seen.add(item.id);
+  let weight = item.weight ?? 0;
+  for (const id of item.containsIds ?? []) {
+    weight += treeWeight(catalog.get(id), catalog, seen);
+  }
+  return weight;
 }
 
 export function overviewWeapon(

@@ -29,6 +29,7 @@ import {
   SILHOUETTE_ZONES,
   slotCellSize,
   SLOT_UI,
+  treeWeight,
   WEAPON_COLUMN_SLOTS,
   weaponStats,
 } from "./kit-display";
@@ -231,11 +232,28 @@ describe("kit display", () => {
       { id: "mag", slotLabel: "Magazine", name: "Stanag", shortName: "STANAG", image: undefined },
       { id: "receiver", slotLabel: "Receiver", name: "Upper receiver", shortName: undefined, image: undefined },
     ]);
-    expect(installedMods(m4, catalog).map((row) => ({ id: row.id, slotLabel: row.slotLabel, childCount: row.children.length }))).toEqual([
+    const assembled: TarkovItemLite = { ...m4, containsIds: ["grip", "mag", "receiver", "barrel"] };
+    const nested = new Map<string, TarkovItemLite>([
+      ["grip", { id: "grip", name: "MIAD pistol grip", shortName: "MIAD", iconLink: "grip.webp", weight: 0.1 }],
+      ["mag", { id: "mag", name: "Stanag", shortName: "STANAG", weight: 0.2 }],
+      [
+        "receiver",
+        {
+          id: "receiver",
+          name: "Upper receiver",
+          weight: 0.2,
+          slots: [{ nameId: "mod_barrel", name: "Barrel", allowedItemIds: ["barrel"] }],
+        },
+      ],
+      ["barrel", { id: "barrel", name: "14.5 inch barrel", weight: 0.5 }],
+    ]);
+    expect(installedMods(assembled, nested).map((row) => ({ id: row.id, slotLabel: row.slotLabel, childCount: row.children.length }))).toEqual([
       { id: "grip", slotLabel: "Pistol Grip", childCount: 0 },
       { id: "mag", slotLabel: "Magazine", childCount: 0 },
-      { id: "receiver", slotLabel: "Receiver", childCount: 0 },
+      { id: "receiver", slotLabel: "Receiver", childCount: 1 },
     ]);
+    expect(installedMods(assembled, nested)[2]?.children[0]).toMatchObject({ id: "barrel", slotLabel: "Barrel" });
+    expect(treeWeight(assembled, nested)).toBeCloseTo(3.9);
   });
 
   it("uses the first published weapon for stats and shows ammo as a caption", () => {
