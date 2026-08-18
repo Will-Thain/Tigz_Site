@@ -126,7 +126,7 @@ async function fetchCatalogJson(path: string): Promise<unknown | null> {
   try {
     const res = await fetch(`${CATALOG_BASE}${path}`, {
       next: { revalidate: 60 * 60 * 12 },
-      headers: { Accept: "application/json" },
+      headers: { Accept: "application/json", "User-Agent": TRACKER_UA },
     });
     if (!res.ok) return null;
     return await res.json();
@@ -237,16 +237,49 @@ function mapItems(data: unknown[]): TarkovItemLite[] {
   return items;
 }
 
-export function itemsFromCatalogPayload(data: unknown): TarkovItemLite[] | null {
+function isCatalogPlaceholder(id: string, value: string): boolean {
+  return value === `${id} Name` || value === `${id} ShortName` || value.startsWith(`${id} `);
+}
+
+export function localeMapFromPayload(data: unknown): Record<string, string> {
+  const rec = asRecord(data);
+  const inner = rec ? (asRecord(rec.data) ?? rec) : null;
+  if (!inner) return {};
+  const out: Record<string, string> = {};
+  for (const [key, value] of Object.entries(inner)) {
+    if (typeof value === "string" && value.trim()) out[key] = value;
+  }
+  return out;
+}
+
+export function applyItemLocale(item: TarkovItemLite, locale: Record<string, string>): TarkovItemLite {
+  const name = locale[`${item.id} Name`];
+  const shortName = locale[`${item.id} ShortName`];
+  return {
+    ...item,
+    name: name && !isCatalogPlaceholder(item.id, name) ? name : item.name,
+    shortName:
+      shortName && !isCatalogPlaceholder(item.id, shortName) ? shortName : item.shortName,
+  };
+}
+
+export function itemsFromCatalogPayload(data: unknown, localeData?: unknown): TarkovItemLite[] | null {
   const rows = unwrapCatalogArray(data, ["items"]);
   if (!rows) return null;
-  return mapItems(rows);
+  const items = mapItems(rows);
+  if (localeData == null) return items;
+  const locale = localeMapFromPayload(localeData);
+  if (Object.keys(locale).length === 0) return items;
+  return items.map((item) => applyItemLocale(item, locale));
 }
 
 export async function fetchCatalogItemIndex(): Promise<TarkovItemLite[] | null> {
-  const data = await fetchCatalogJson("/regular/items");
+  const [data, locale] = await Promise.all([
+    fetchCatalogJson("/regular/items"),
+    fetchCatalogJson("/regular/items_en"),
+  ]);
   if (data == null) return null;
-  return itemsFromCatalogPayload(data);
+  return itemsFromCatalogPayload(data, locale);
 }
 
 export async function hydrateItemsById(ids: string[]): Promise<Map<string, TarkovItemLite>> {

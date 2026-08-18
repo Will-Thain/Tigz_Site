@@ -197,10 +197,11 @@ export function resolveKitShortName(item: KitItem, catalog?: TarkovItemLite): st
 
 export function pickKitImage(slot: KitSlot, catalog?: TarkovItemLite): string | undefined {
   if (!catalog) return undefined;
-  if (WEAPON_SLOTS.has(slot)) {
+  const ranged = WEAPON_SLOTS.has(slot) || catalog.types?.includes("gun");
+  if (ranged || !catalog.iconLink) {
     return catalog.inspectImageLink || catalog.image512pxLink || catalog.gridImageLink || catalog.iconLink;
   }
-  return catalog.gridImageLink || catalog.iconLink || catalog.image512pxLink || catalog.inspectImageLink;
+  return catalog.iconLink || catalog.gridImageLink || catalog.image512pxLink || catalog.inspectImageLink;
 }
 
 export function itemForSlot(items: KitItem[], slot: KitSlot): KitItem | undefined {

@@ -143,7 +143,7 @@ describe("kit display", () => {
     expect(resolveKitShortName({ slot: "Primary", itemId: id, label: "M4A1" }, { id, name: "Colt M4A1", shortName: "M4A1" })).toBe("M4A1");
   });
 
-  it("prefers inspect images for weapons and grid icons for gear", () => {
+  it("uses Totov plate images: weapon imageLink and gear iconLink", () => {
     const item = {
       id: "m4",
       name: "M4A1",
@@ -151,9 +151,13 @@ describe("kit display", () => {
       image512pxLink: "512.webp",
       gridImageLink: "grid.webp",
       iconLink: "icon.webp",
+      types: ["gun"],
     };
     expect(pickKitImage("Primary", item)).toBe("inspect.webp");
-    expect(pickKitImage("Armor", item)).toBe("grid.webp");
+    expect(pickKitImage("Pistol", item)).toBe("inspect.webp");
+    expect(pickKitImage("Armor", { id: "av", name: "AVS", gridImageLink: "grid.webp", iconLink: "icon.webp" })).toBe(
+      "icon.webp",
+    );
     expect(pickKitImage("Headset", { id: "hs", name: "ComTac", iconLink: "icon.webp" })).toBe("icon.webp");
   });
 

@@ -78,6 +78,34 @@ describe("itemsFromCatalogPayload", () => {
     });
   });
 
+  it("replaces json.tarkov.dev placeholder names from the items_en locale dump", () => {
+    const items = itemsFromCatalogPayload(
+      {
+        data: {
+          items: {
+            m4: {
+              id: "5447a9cd4bdc2dbd208b4567",
+              name: "5447a9cd4bdc2dbd208b4567 Name",
+              shortName: "5447a9cd4bdc2dbd208b4567 ShortName",
+              iconLink: "https://assets.tarkov.dev/m4-icon.webp",
+            },
+          },
+        },
+      },
+      {
+        data: {
+          "5447a9cd4bdc2dbd208b4567 Name": "Colt M4A1 5.56x45 assault rifle",
+          "5447a9cd4bdc2dbd208b4567 ShortName": "M4A1",
+        },
+      },
+    );
+    expect(items?.[0]).toMatchObject({
+      id: "5447a9cd4bdc2dbd208b4567",
+      name: "Colt M4A1 5.56x45 assault rifle",
+      shortName: "M4A1",
+    });
+  });
+
   it("reads weapon properties, slots, and contained parts", () => {
     const items = itemsFromCatalogPayload({
       items: [
