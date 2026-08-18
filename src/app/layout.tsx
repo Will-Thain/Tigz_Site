@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Barlow_Condensed, IBM_Plex_Mono, Source_Sans_3 } from "next/font/google";
+import { Barlow_Condensed, IBM_Plex_Mono, Roboto, Source_Sans_3 } from "next/font/google";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import "./globals.css";
@@ -16,10 +16,10 @@ const sans = Source_Sans_3({
   variable: "--font-sans",
 });
 
-const mono = IBM_Plex_Mono({
+const roboto = Roboto({
   subsets: ["latin"],
-  weight: ["400", "500"],
-  variable: "--font-mono",
+  weight: ["400"],
+  variable: "--font-roboto",
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${display.variable} ${sans.variable} ${mono.variable} font-sans antialiased`}>
+      <body className={`${display.variable} ${sans.variable} ${mono.variable} ${roboto.variable} font-sans antialiased`}>
         <div className="flex min-h-screen flex-col">
           <SiteHeader />
           <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 sm:px-6">{children}</main>
